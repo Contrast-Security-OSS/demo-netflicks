@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <AssemblyName>DotNetFlicks.Engines</AssemblyName>
+    <RootNamespace>DotNetFlicks.Engines</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="7.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DotNetFlicks.Accessors\Accessors.csproj" />
+    <ProjectReference Include="..\DotNetFlicks.Common\Common.csproj" />
+    <ProjectReference Include="..\DotNetFlicks.ViewModels\ViewModels.csproj" />
+  </ItemGroup>
+
+</Project>

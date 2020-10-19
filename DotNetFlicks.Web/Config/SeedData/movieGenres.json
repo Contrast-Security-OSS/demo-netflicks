@@ -1,0 +1,737 @@
+[
+	{
+		"MovieId": 194662,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 1
+	},
+	{
+		"MovieId": 194662,
+		"Movie": null,
+		"GenreId": 35,
+		"Genre": null,
+		"Id": 2
+	},
+	{
+		"MovieId": 354912,
+		"Movie": null,
+		"GenreId": 12,
+		"Genre": null,
+		"Id": 3
+	},
+	{
+		"MovieId": 354912,
+		"Movie": null,
+		"GenreId": 35,
+		"Genre": null,
+		"Id": 4
+	},
+	{
+		"MovieId": 354912,
+		"Movie": null,
+		"GenreId": 10751,
+		"Genre": null,
+		"Id": 5
+	},
+	{
+		"MovieId": 354912,
+		"Movie": null,
+		"GenreId": 16,
+		"Genre": null,
+		"Id": 6
+	},
+	{
+		"MovieId": 49026,
+		"Movie": null,
+		"GenreId": 28,
+		"Genre": null,
+		"Id": 7
+	},
+	{
+		"MovieId": 49026,
+		"Movie": null,
+		"GenreId": 80,
+		"Genre": null,
+		"Id": 8
+	},
+	{
+		"MovieId": 49026,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 9
+	},
+	{
+		"MovieId": 49026,
+		"Movie": null,
+		"GenreId": 53,
+		"Genre": null,
+		"Id": 10
+	},
+	{
+		"MovieId": 68718,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 11
+	},
+	{
+		"MovieId": 68718,
+		"Movie": null,
+		"GenreId": 37,
+		"Genre": null,
+		"Id": 12
+	},
+	{
+		"MovieId": 9377,
+		"Movie": null,
+		"GenreId": 35,
+		"Genre": null,
+		"Id": 13
+	},
+	{
+		"MovieId": 419430,
+		"Movie": null,
+		"GenreId": 9648,
+		"Genre": null,
+		"Id": 14
+	},
+	{
+		"MovieId": 419430,
+		"Movie": null,
+		"GenreId": 53,
+		"Genre": null,
+		"Id": 15
+	},
+	{
+		"MovieId": 419430,
+		"Movie": null,
+		"GenreId": 27,
+		"Genre": null,
+		"Id": 16
+	},
+	{
+		"MovieId": 27205,
+		"Movie": null,
+		"GenreId": 28,
+		"Genre": null,
+		"Id": 17
+	},
+	{
+		"MovieId": 27205,
+		"Movie": null,
+		"GenreId": 53,
+		"Genre": null,
+		"Id": 18
+	},
+	{
+		"MovieId": 27205,
+		"Movie": null,
+		"GenreId": 878,
+		"Genre": null,
+		"Id": 19
+	},
+	{
+		"MovieId": 27205,
+		"Movie": null,
+		"GenreId": 9648,
+		"Genre": null,
+		"Id": 20
+	},
+	{
+		"MovieId": 27205,
+		"Movie": null,
+		"GenreId": 12,
+		"Genre": null,
+		"Id": 21
+	},
+	{
+		"MovieId": 157336,
+		"Movie": null,
+		"GenreId": 12,
+		"Genre": null,
+		"Id": 22
+	},
+	{
+		"MovieId": 157336,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 23
+	},
+	{
+		"MovieId": 157336,
+		"Movie": null,
+		"GenreId": 878,
+		"Genre": null,
+		"Id": 24
+	},
+	{
+		"MovieId": 8587,
+		"Movie": null,
+		"GenreId": 10751,
+		"Genre": null,
+		"Id": 25
+	},
+	{
+		"MovieId": 8587,
+		"Movie": null,
+		"GenreId": 16,
+		"Genre": null,
+		"Id": 26
+	},
+	{
+		"MovieId": 8587,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 27
+	},
+	{
+		"MovieId": 122,
+		"Movie": null,
+		"GenreId": 12,
+		"Genre": null,
+		"Id": 28
+	},
+	{
+		"MovieId": 122,
+		"Movie": null,
+		"GenreId": 14,
+		"Genre": null,
+		"Id": 29
+	},
+	{
+		"MovieId": 122,
+		"Movie": null,
+		"GenreId": 28,
+		"Genre": null,
+		"Id": 30
+	},
+	{
+		"MovieId": 680,
+		"Movie": null,
+		"GenreId": 53,
+		"Genre": null,
+		"Id": 31
+	},
+	{
+		"MovieId": 680,
+		"Movie": null,
+		"GenreId": 80,
+		"Genre": null,
+		"Id": 32
+	},
+	{
+		"MovieId": 281957,
+		"Movie": null,
+		"GenreId": 37,
+		"Genre": null,
+		"Id": 33
+	},
+	{
+		"MovieId": 281957,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 34
+	},
+	{
+		"MovieId": 281957,
+		"Movie": null,
+		"GenreId": 12,
+		"Genre": null,
+		"Id": 35
+	},
+	{
+		"MovieId": 281957,
+		"Movie": null,
+		"GenreId": 53,
+		"Genre": null,
+		"Id": 36
+	},
+	{
+		"MovieId": 433808,
+		"Movie": null,
+		"GenreId": 27,
+		"Genre": null,
+		"Id": 37
+	},
+	{
+		"MovieId": 857,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 38
+	},
+	{
+		"MovieId": 857,
+		"Movie": null,
+		"GenreId": 36,
+		"Genre": null,
+		"Id": 39
+	},
+	{
+		"MovieId": 857,
+		"Movie": null,
+		"GenreId": 10752,
+		"Genre": null,
+		"Id": 40
+	},
+	{
+		"MovieId": 424,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 41
+	},
+	{
+		"MovieId": 424,
+		"Movie": null,
+		"GenreId": 36,
+		"Genre": null,
+		"Id": 42
+	},
+	{
+		"MovieId": 424,
+		"Movie": null,
+		"GenreId": 10752,
+		"Genre": null,
+		"Id": 43
+	},
+	{
+		"MovieId": 399055,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 44
+	},
+	{
+		"MovieId": 399055,
+		"Movie": null,
+		"GenreId": 14,
+		"Genre": null,
+		"Id": 45
+	},
+	{
+		"MovieId": 399055,
+		"Movie": null,
+		"GenreId": 10749,
+		"Genre": null,
+		"Id": 46
+	},
+	{
+		"MovieId": 1891,
+		"Movie": null,
+		"GenreId": 12,
+		"Genre": null,
+		"Id": 47
+	},
+	{
+		"MovieId": 1891,
+		"Movie": null,
+		"GenreId": 28,
+		"Genre": null,
+		"Id": 48
+	},
+	{
+		"MovieId": 1891,
+		"Movie": null,
+		"GenreId": 878,
+		"Genre": null,
+		"Id": 49
+	},
+	{
+		"MovieId": 277216,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 50
+	},
+	{
+		"MovieId": 277216,
+		"Movie": null,
+		"GenreId": 10402,
+		"Genre": null,
+		"Id": 51
+	},
+	{
+		"MovieId": 10193,
+		"Movie": null,
+		"GenreId": 16,
+		"Genre": null,
+		"Id": 52
+	},
+	{
+		"MovieId": 10193,
+		"Movie": null,
+		"GenreId": 10751,
+		"Genre": null,
+		"Id": 53
+	},
+	{
+		"MovieId": 10193,
+		"Movie": null,
+		"GenreId": 35,
+		"Genre": null,
+		"Id": 54
+	},
+	{
+		"MovieId": 7446,
+		"Movie": null,
+		"GenreId": 28,
+		"Genre": null,
+		"Id": 55
+	},
+	{
+		"MovieId": 7446,
+		"Movie": null,
+		"GenreId": 35,
+		"Genre": null,
+		"Id": 56
+	},
+	{
+		"MovieId": 813,
+		"Movie": null,
+		"GenreId": 35,
+		"Genre": null,
+		"Id": 57
+	},
+	{
+		"MovieId": 329,
+		"Movie": null,
+		"GenreId": 12,
+		"Genre": null,
+		"Id": 58
+	},
+	{
+		"MovieId": 329,
+		"Movie": null,
+		"GenreId": 878,
+		"Genre": null,
+		"Id": 59
+	},
+	{
+		"MovieId": 1417,
+		"Movie": null,
+		"GenreId": 14,
+		"Genre": null,
+		"Id": 60
+	},
+	{
+		"MovieId": 1417,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 61
+	},
+	{
+		"MovieId": 1417,
+		"Movie": null,
+		"GenreId": 10752,
+		"Genre": null,
+		"Id": 62
+	},
+	{
+		"MovieId": 240,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 63
+	},
+	{
+		"MovieId": 240,
+		"Movie": null,
+		"GenreId": 80,
+		"Genre": null,
+		"Id": 64
+	},
+	{
+		"MovieId": 348,
+		"Movie": null,
+		"GenreId": 27,
+		"Genre": null,
+		"Id": 65
+	},
+	{
+		"MovieId": 348,
+		"Movie": null,
+		"GenreId": 878,
+		"Genre": null,
+		"Id": 66
+	},
+	{
+		"MovieId": 129,
+		"Movie": null,
+		"GenreId": 16,
+		"Genre": null,
+		"Id": 67
+	},
+	{
+		"MovieId": 129,
+		"Movie": null,
+		"GenreId": 10751,
+		"Genre": null,
+		"Id": 68
+	},
+	{
+		"MovieId": 129,
+		"Movie": null,
+		"GenreId": 14,
+		"Genre": null,
+		"Id": 69
+	},
+	{
+		"MovieId": 429,
+		"Movie": null,
+		"GenreId": 37,
+		"Genre": null,
+		"Id": 70
+	},
+	{
+		"MovieId": 694,
+		"Movie": null,
+		"GenreId": 27,
+		"Genre": null,
+		"Id": 71
+	},
+	{
+		"MovieId": 694,
+		"Movie": null,
+		"GenreId": 53,
+		"Genre": null,
+		"Id": 72
+	},
+	{
+		"MovieId": 245891,
+		"Movie": null,
+		"GenreId": 28,
+		"Genre": null,
+		"Id": 73
+	},
+	{
+		"MovieId": 245891,
+		"Movie": null,
+		"GenreId": 53,
+		"Genre": null,
+		"Id": 74
+	},
+	{
+		"MovieId": 6977,
+		"Movie": null,
+		"GenreId": 80,
+		"Genre": null,
+		"Id": 75
+	},
+	{
+		"MovieId": 6977,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 76
+	},
+	{
+		"MovieId": 6977,
+		"Movie": null,
+		"GenreId": 53,
+		"Genre": null,
+		"Id": 77
+	},
+	{
+		"MovieId": 118340,
+		"Movie": null,
+		"GenreId": 28,
+		"Genre": null,
+		"Id": 78
+	},
+	{
+		"MovieId": 118340,
+		"Movie": null,
+		"GenreId": 878,
+		"Genre": null,
+		"Id": 79
+	},
+	{
+		"MovieId": 118340,
+		"Movie": null,
+		"GenreId": 12,
+		"Genre": null,
+		"Id": 80
+	},
+	{
+		"MovieId": 12445,
+		"Movie": null,
+		"GenreId": 10751,
+		"Genre": null,
+		"Id": 81
+	},
+	{
+		"MovieId": 12445,
+		"Movie": null,
+		"GenreId": 14,
+		"Genre": null,
+		"Id": 82
+	},
+	{
+		"MovieId": 12445,
+		"Movie": null,
+		"GenreId": 12,
+		"Genre": null,
+		"Id": 83
+	},
+	{
+		"MovieId": 120467,
+		"Movie": null,
+		"GenreId": 35,
+		"Genre": null,
+		"Id": 84
+	},
+	{
+		"MovieId": 120467,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 85
+	},
+	{
+		"MovieId": 10681,
+		"Movie": null,
+		"GenreId": 16,
+		"Genre": null,
+		"Id": 86
+	},
+	{
+		"MovieId": 10681,
+		"Movie": null,
+		"GenreId": 10751,
+		"Genre": null,
+		"Id": 87
+	},
+	{
+		"MovieId": 263115,
+		"Movie": null,
+		"GenreId": 28,
+		"Genre": null,
+		"Id": 88
+	},
+	{
+		"MovieId": 263115,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 89
+	},
+	{
+		"MovieId": 263115,
+		"Movie": null,
+		"GenreId": 878,
+		"Genre": null,
+		"Id": 90
+	},
+	{
+		"MovieId": 1091,
+		"Movie": null,
+		"GenreId": 27,
+		"Genre": null,
+		"Id": 91
+	},
+	{
+		"MovieId": 1091,
+		"Movie": null,
+		"GenreId": 9648,
+		"Genre": null,
+		"Id": 92
+	},
+	{
+		"MovieId": 1091,
+		"Movie": null,
+		"GenreId": 878,
+		"Genre": null,
+		"Id": 93
+	},
+	{
+		"MovieId": 106646,
+		"Movie": null,
+		"GenreId": 80,
+		"Genre": null,
+		"Id": 94
+	},
+	{
+		"MovieId": 106646,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 95
+	},
+	{
+		"MovieId": 106646,
+		"Movie": null,
+		"GenreId": 35,
+		"Genre": null,
+		"Id": 96
+	},
+	{
+		"MovieId": 324786,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 97
+	},
+	{
+		"MovieId": 324786,
+		"Movie": null,
+		"GenreId": 36,
+		"Genre": null,
+		"Id": 98
+	},
+	{
+		"MovieId": 324786,
+		"Movie": null,
+		"GenreId": 10752,
+		"Genre": null,
+		"Id": 99
+	},
+	{
+		"MovieId": 105,
+		"Movie": null,
+		"GenreId": 12,
+		"Genre": null,
+		"Id": 100
+	},
+	{
+		"MovieId": 105,
+		"Movie": null,
+		"GenreId": 35,
+		"Genre": null,
+		"Id": 101
+	},
+	{
+		"MovieId": 105,
+		"Movie": null,
+		"GenreId": 878,
+		"Genre": null,
+		"Id": 102
+	},
+	{
+		"MovieId": 105,
+		"Movie": null,
+		"GenreId": 10751,
+		"Genre": null,
+		"Id": 103
+	},
+	{
+		"MovieId": 185,
+		"Movie": null,
+		"GenreId": 878,
+		"Genre": null,
+		"Id": 104
+	},
+	{
+		"MovieId": 185,
+		"Movie": null,
+		"GenreId": 18,
+		"Genre": null,
+		"Id": 105
+	}
+]

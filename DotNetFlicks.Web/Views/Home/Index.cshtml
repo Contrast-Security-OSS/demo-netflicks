@@ -1,0 +1,27 @@
+﻿@model DotNetFlicks.ViewModels.Movie.MoviesViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1 class="display-4">.NetFlicks</h1>
+    <hr class="my-4">
+    <p class="lead">Welcome to your new home for streaming movies. Whether you're looking to rent, purchase or read about your favorite movies and entertainers, you've come to the right place.</p>
+    <br />
+    <a class="btn btn-primary btn-lg" role="button" asp-controller="Movie" asp-action="ViewAll">Browse available movies</a>
+</div>
+
+<br />
+<h3>New Releases</h3>
+<hr />
+<div class="row">
+    @foreach (var movie in Model.Movies)
+    {
+        <div class="col">
+            <a asp-controller="Movie" asp-action="View" asp-route-id="@movie.Id">
+                <img class="img-thumbnail" src="@movie.ImageUrl" alt="@movie.Name">
+            </a>
+        </div>
+    }
+</div>

@@ -1,0 +1,265 @@
+﻿@using DotNetFlicks.Common.Utilities
+
+@model DotNetFlicks.ViewModels.Movie.MovieViewModel
+
+@{
+    ViewData["Title"] = Model.Name;
+    var directors = Model.Crew.Where(x => x.IsDirector && (x.Role == "Director" || x.Role == "Co-Director")).OrderBy(x => x.Role != "Director").ToList();
+}
+
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-xl-4 col-md-6 offset-md-3 offset-lg-0 text-center">
+            <img src=@Model.ImageUrl class="img-fluid jumbo-image" data-toggle="modal" data-target=".image-modal" />
+            <br class="d-lg-none" /><br class="d-lg-none" />
+        </div>
+        <div class="col">
+            <h1 class="display-4">@ViewData["Title"]</h1>
+            <hr class="my-4">
+
+            <span>
+                @Html.Raw(Model.Description.ToSubString(500).HtmlEncode())
+                @if (Model.Description.Count() > 500)
+                {
+                    <a class="btn btn-primary btn-sm m-1" role="button" data-toggle="modal" data-target="#description-modal">Read more</a>
+                }
+            </span>
+            <br /><br />
+
+            @if (directors.Count == 1)
+            {
+                <p><strong>Director: </strong><a asp-controller="Person" asp-action="View" asp-route-id="@directors.Single().PersonId" class="custom-link">@directors.Single().PersonName</a></p>
+            }
+            else if (directors.Count > 1)
+            {
+                <p>
+                    <strong>Directors: </strong>
+                    @foreach (var director in directors)
+                    {
+                        <span>
+                            <a asp-controller="Person" asp-action="View" asp-route-id="@director.PersonId" class="custom-link">@director.PersonName</a>@(director.Role != "Director" ? " (" + director.Role + ")" : "")@(director != directors.Last() ? "," : "")
+                        </span>
+                    }
+                </p>
+            }
+
+            <p>
+                <strong>Genres: </strong>
+                @foreach (var genre in Model.Genres)
+                {
+                    <a class="badge badge-secondary" asp-controller="Genre" asp-action="View" asp-route-id="@genre.Id">@genre.Name</a>
+                }
+            </p>
+
+            <p><strong>Release Date: </strong>@Model.ReleaseDate.ToCustomDateString()</p>
+
+            <p><strong>Runtime: </strong>@Model.Runtime.ToFormattedString()</p>
+
+            <div class="d-flex align-items-center mt-4">
+                @if (Model.Purchased || Model.CurrentlyRented)
+                {
+                    <a class="btn btn-primary btn-lg mr-3" href="#" role="button" data-toggle="modal" data-target="#watch-modal">Watch</a>
+                }
+                else
+                {
+                    <a class="btn btn-primary btn-lg mr-3" href="#" role="button" data-toggle="modal" data-target="#rent-modal">Rent ($@Model.RentCost)</a>
+                    <a class="btn btn-primary btn-lg mr-3" href="#" role="button" data-toggle="modal" data-target="#buy-modal">Buy ($@Model.PurchaseCost)</a>
+                }
+
+                @if (Model.Purchased)
+                {
+                    <p class="mb-0">Purchased on @Model.PurchaseDate.Value.Date.ToLongDateString()</p>
+                }
+
+                @if (Model.CurrentlyRented)
+                {
+                    var rentHoursRemaining = Model.RentEndDate.Value - DateTime.UtcNow;
+                    <p class="mb-0">@rentHoursRemaining.ToFormattedString() remaining for rental</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Cast <small>(@Html.DisplayFor(x => x.Cast.Count))</small></h2>
+            <br />
+
+            @if (Model.Cast.Any())
+            {
+                <div class="card role-card">
+                    <div class="card-header bg-primary text-white collapse-card" data-toggle="collapse" aria-expanded="true" href="#collapse-cast">
+                        <div class="d-flex">
+                            <h5 class="card-title mb-0">Cast <small>(@Model.Cast.Count())</small></h5>
+                            <i class="ml-auto my-auto fas fa-chevron-up"></i>
+                        </div>
+                    </div>
+                    <div class="card-body py-0 collapse show" id="collapse-cast">
+                        <table class="table mb-0">
+                            @foreach (var castMember in Model.Cast)
+                            {
+                                <tr class="row">
+                                    <td class="col-6 align-middle">
+                                        <strong><a asp-controller="Person" asp-action="View" asp-route-id="@castMember.PersonId" class="custom-link">@castMember.PersonName</a></strong>
+                                    </td>
+                                    <td class="col-6 align-middle">
+                                        @castMember.Role
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+            }
+            <br />
+        </div>
+        <div class="col-md-6">
+            <h2>Crew <small>(@Html.DisplayFor(x => x.Crew.Count))</small></h2>
+            <br />
+
+            @{
+                var collapseId = 0;
+            }
+
+            @foreach (var department in Model.Crew.GroupBy(x => x.Category))
+            {
+                var departmentName = department.First().Category;
+                collapseId++;
+
+                <div class="card role-card">
+                    <div class="card-header bg-primary text-white collapse-card" data-toggle="collapse" aria-expanded="true" href="#collapse-@(collapseId)">
+                        <div class="d-flex">
+                            <h5 class="card-title mb-0">@departmentName <small>(@department.Count())</small></h5>
+                            <i class="ml-auto my-auto fas fa-chevron-up"></i>
+                        </div>
+                    </div>
+                    <div class="card-body py-0 collapse show" id="collapse-@(collapseId)">
+                        <table class="table mb-0">
+                            @foreach (var crewMember in department)
+                            {
+                                <tr class="row">
+                                    <td class="col-6 align-middle">
+                                        <strong><a asp-controller="Person" asp-action="View" asp-route-id="@crewMember.PersonId" class="custom-link">@crewMember.PersonName</a></strong>
+                                    </td>
+                                    <td class="col-6 align-middle">
+                                        @crewMember.Role
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+                <br />
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade image-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 550px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">@ViewData["Title"]</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <img src=@Model.ImageUrl alt="Image" class="img-fluid" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Description.Count() > 500)
+{
+    <div class="modal fade" id="description-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">@ViewData["Title"]</h2>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @Html.Raw(Model.Description.HtmlEncode())
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.Purchased || Model.CurrentlyRented)
+{
+    <div class="modal fade" id="watch-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">@ViewData["Title"]</h2>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="embed-responsive embed-responsive-16by9">
+                        <iframe class="embed-responsive-item" src="@Model.TrailerUrl" allowfullscreen></iframe>
+                    </div>
+                    <br />
+                    <p>
+                        <strong>Disclaimer: </strong>Due to the surprisingly low number of people that follow through with their payments to us, we've had to make some budget cuts. Unfortunately, replacing all of our full-length movies with trailers was one of them. Hope this is okay.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="modal fade" id="rent-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Rent @ViewData["Title"]</h2>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>How to pay: </strong>In an effort to eliminate fees from credit card companies, the only payment method we accept is cash mailed directly to our corporate office. If you don't have the money right now, don't worry; we simply trust our customers to pay us eventually.</p>
+                    <p><i>Rentals last for 48 hours.</i></p>
+                </div>
+                <div class="modal-footer">
+                    <h5 class="mr-auto">Total: $@Model.RentCost</h5>
+                    <a class="btn btn-primary" asp-controller="Movie" asp-action="Rent" asp-route-id="@Model.Id">
+                        I promise to pay
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="buy-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Buy @ViewData["Title"]</h2>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>How to pay: </strong>In an effort to eliminate fees from credit card companies, the only payment method we accept is cash mailed directly to our corporate office. If you don't have the money right now, don't worry; we simply trust our customers to pay us eventually.</p>
+                </div>
+                <div class="modal-footer">
+                    <h5 class="mr-auto">Total: $@Model.PurchaseCost</h5>
+                    <a class="btn btn-primary" asp-controller="Movie" asp-action="Purchase" asp-route-id="@Model.Id">
+                        I promise to pay
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}

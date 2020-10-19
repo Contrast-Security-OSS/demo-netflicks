@@ -1,0 +1,35 @@
+﻿@model DotNetFlicks.ViewModels.Movie.CastMemberViewModel
+
+<tr class="row">
+    <td class="col align-middle">
+        <input asp-for="Id" type="hidden" />
+        <select asp-for="PersonId" class="form-control person-picker" data-live-search="true" data-size="10">
+            @if (Model.PersonId != 0)
+            {
+                <option value="@Model.PersonId" selected>@Model.PersonName</option>
+            }
+            else
+            {
+                <option disabled selected>Select</option>
+            }
+        </select>
+    </td>
+    <td class="col align-middle">
+        <input asp-for="Role" class="form-control" />
+    </td>
+    <td width="176">
+        <input asp-for="Order" class="order" type="hidden" />
+        <input asp-for="IsDeleted" class="is-deleted" type="hidden" />
+        <div class="d-flex">
+            <a class="btn btn-primary order-up ml-2">
+                <i class="fas fa-arrow-up"></i>
+            </a>
+            <a class="btn btn-primary order-down ml-2">
+                <i class="fas fa-arrow-down"></i>
+            </a>
+            <a class="btn btn-danger delete-person ml-2">
+                <i class="fas fa-trash" style="color: white"></i>
+            </a>
+        </div>
+    </td>
+</tr>

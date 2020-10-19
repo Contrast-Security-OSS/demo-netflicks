@@ -1,0 +1,51 @@
+﻿@using DotNetFlicks.ViewModels.Shared;
+
+@model DotNetFlicks.ViewModels.Department.DepartmentsViewModel
+
+@{
+    ViewData["Title"] = "Departments";
+}
+
+<div class="d-flex mb-5">
+    <partial name="_DataTableTitle" for="@Model.DataTable" />
+    <a class="btn btn-primary ml-auto my-auto" asp-controller="Department" asp-action="Edit">New</a>
+</div>
+
+<div>
+    <partial name="_SearchToolbar" for="@Model.DataTable" />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="d-table-cell p-0">
+                    <partial name="_SortableHeader" model='new SortableHeaderViewModel {DataTable = Model.DataTable, ColumnName = "Name"}' />
+                </th>
+                <th class="d-none d-sm-table-cell p-0">
+                    <partial name="_SortableHeader" model='new SortableHeaderViewModel {DataTable = Model.DataTable, ColumnName = "Roles"}' />
+                </th>
+                <th width="116"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var i in Model.Departments)
+            {
+                <tr>
+                    <td class="align-middle">@Html.DisplayFor(x => i.Name)</td>
+                    <td class="d-none d-sm-table-cell align-middle">@Html.DisplayFor(x => i.PeopleCount)</td>
+                    <td>
+                        <div class="d-flex">
+                            <a class="btn btn-primary" asp-controller="Department" asp-action="Edit" asp-route-id="@i.Id">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a class="btn btn-primary ml-2" asp-controller="Department" asp-action="Delete" asp-route-id="@i.Id">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <partial name="_PaginationToolbar" for="@Model.DataTable" />
+</div>

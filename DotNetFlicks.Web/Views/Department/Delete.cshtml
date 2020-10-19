@@ -1,0 +1,28 @@
+﻿@model DotNetFlicks.ViewModels.Department.DepartmentViewModel
+
+@{
+    ViewData["Title"] = "Delete " + Model.Name;
+}
+
+<h1>@ViewData["Title"]</h1>
+<p class="lead">Are you sure you want to delete @Model.Name?</p>
+<br /><br />
+
+<form asp-controller="Department" asp-action="Delete" method="post" class="form-horizontal" role="form">
+    <div class="container form-actions no-color">
+        @if (Model.PeopleCount > 0)
+        {
+            <h4 class="text-danger">@Model.Name cannot be deleted because @Model.PeopleCount people use it.</h4>
+        }
+        else if (Model.IsDirecting)
+        {
+            <h4 class="text-danger">@Model.Name cannot be deleted.</h4>
+        }
+        else
+        {
+            <input type="submit" value="Delete" class="btn btn-danger" />
+        }
+        <br /><br />
+        <a asp-action="Index">Back to List</a>
+    </div>
+</form>

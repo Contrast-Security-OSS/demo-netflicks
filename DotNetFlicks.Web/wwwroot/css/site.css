@@ -1,0 +1,95 @@
+﻿/********** Sitewide formatting **********/
+
+body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set some basic padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.custom-link {
+    color: black;
+    font-weight: 500;
+}
+
+/********** Sticky footer **********/
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    /*Margin bottom by footer height */
+    margin-bottom: 60px;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 60px;
+    line-height: 60px; /* Vertically center the text there */
+    background-color: #f5f5f5;
+}
+
+/********** Movie Card/Sorter **********/
+
+.movie-card {
+    cursor: pointer;
+}
+
+.movie-card:hover {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.role-card {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.collapse-card {
+    cursor: pointer;
+}
+
+.sort-movies {
+    cursor: pointer;
+}
+
+.sort-movies:active {
+    color: white !important;
+}
+
+/********** Customize Bootstrap **********/
+
+.jumbotron {
+    padding: 32px;
+}
+
+.jumbo-image {
+    cursor: pointer;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.tooltip-inner {
+    max-width: 600px;
+}
+
+.btn-primary {
+    color: white !important;
+}
+
+/********** Customize Data Tables **********/
+
+.pagination-toolbar a {
+    border-color: lightgray;
+}
+
+th a, th a:hover, th a:visited {
+    color: black;
+    text-decoration: none;
+}

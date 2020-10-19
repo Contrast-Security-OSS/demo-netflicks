@@ -1,0 +1,53 @@
+﻿@model DotNetFlicks.ViewModels.Movie.MoviesViewModel
+
+@{
+    ViewData["Title"] = "My Movies";
+    ViewData["OnlyPurchasedMovies"] = true;
+}
+
+<ul class="nav nav-tabs nav-fill mb-4" id="pills-tab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="pills-all-tab" data-toggle="pill" href="#pills-all" role="tab" aria-controls="pills-all" aria-selected="true"><h5>All</h5></a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="pills-library-tab" data-toggle="pill" href="#pills-library" role="tab" aria-controls="pills-library" aria-selected="false"><h5>Library</h5></a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="pills-rentals-tab" data-toggle="pill" href="#pills-rentals" role="tab" aria-controls="pills-rentals" aria-selected="false"><h5>Rentals</h5></a>
+    </li>
+</ul>
+<div class="tab-content" id="pills-tabContent">
+    <div class="tab-pane fade show active movie-card-container" id="pills-all" role="tabpanel" aria-labelledby="pills-all-tab">
+        <div class="d-flex justify-content-end mb-5">
+            <h1 class="mr-auto">My Library and Rentals <small>(@Model.Movies.Count)</small></h1>
+            <partial name="_MovieSorter" />
+        </div>
+
+        <partial name="_MovieCardList" model="Model.Movies" />
+    </div>
+
+    <div class="tab-pane fade movie-card-container" id="pills-library" role="tabpanel" aria-labelledby="pills-library-tab">
+        @{
+            var library = Model.Movies.Where(x => x.PurchaseDate.HasValue).ToList();
+        }
+        <div class="d-flex justify-content-end mb-5">
+            <h1 class="mr-auto">My Library <small>(@library.Count)</small></h1>
+            <partial name="_MovieSorter" />
+        </div>
+
+        <partial name="_MovieCardList" model="library" />
+    </div>
+
+    <div class="tab-pane fade movie-card-container" id="pills-rentals" role="tabpanel" aria-labelledby="pills-rentals-tab">
+        @{
+            var rentals = Model.Movies.Where(x => x.RentEndDate.HasValue).ToList();
+        }
+
+        <div class="d-flex justify-content-end mb-5">
+            <h1 class="mr-auto">My Rentals <small>(@rentals.Count)</small></h1>
+            <partial name="_MovieSorter" />
+        </div>
+
+        <partial name="_MovieCardList" model="rentals" />
+    </div>
+</div>
