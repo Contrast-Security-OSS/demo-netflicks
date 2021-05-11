@@ -48,7 +48,7 @@ spec:
           value: "reallyStrongPwd123"
 
       - name: netflicks
-        image: zencid/netflicks:contrast
+        image: contrastsecuritydemo/netflicks:k8s
         ports:
         - containerPort: 80
         envFrom:

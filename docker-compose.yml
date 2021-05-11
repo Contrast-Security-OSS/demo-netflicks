@@ -16,7 +16,6 @@ services:
     ports:
       - '80:80'
     volumes:
-      #- ./contrast-data:/opt/contrast/
       - ./contrast_security.yaml:/etc/contrast/dotnet-core/contrast_security.yaml
     environment:
       - ConnectionStrings__DotNetFlicksConnection=Server=tcp:database,1433;Initial Catalog=DotNetFlicksDb;Persist Security Info=False;User ID=sa;Password=reallyStrongPwd123;MultipleActiveResultSets=False;

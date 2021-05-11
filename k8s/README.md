@@ -54,7 +54,8 @@ For more details on adding the Contrast agent to your application/image. [See ou
 
 ```shell
 docker tag netflicks:contrast example/netflicks:contrast
-``````shell
+```
+```shell
 docker push example/netflicks:contrast
 ```
 
@@ -64,7 +65,7 @@ Now this image can be used in the kubernetes deployment.
 
 2.  Download the `contrast_security.yaml` and create a secret
 
-YAML file should look like the following for our Node.js agent:
+YAML file should look like the following for our .NET Core agent:
 
 ```yaml
 api: 
@@ -135,7 +136,7 @@ spec:
           value: "reallyStrongPwd123"
 
       - name: netflicks
-        image: example/netflicks:contrast
+        image: contrastsecuritydemo/netflicks:k8s
         ports:
         - containerPort: 80
         envFrom:
