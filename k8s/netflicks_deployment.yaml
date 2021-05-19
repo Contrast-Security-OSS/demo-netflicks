@@ -46,36 +46,22 @@ spec:
           value: "Y"
         - name: SA_PASSWORD
           value: "reallyStrongPwd123"
+
       - name: netflicks
-        image: contrastsecuritydemo/netflicks:1.0
+        image: contrastsecuritydemo/netflicks:k8s
         ports:
         - containerPort: 80
+        envFrom:
+        - configMapRef:
+            name: contrast-config 
         volumeMounts:
-        - mountPath: /opt/contrast
-          name: contrast-volume
-        env:
-        - name: CONTRAST__API__API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: contrast
-              key: api-key
-        - name: CONTRAST__API__SERVICE_KEY
-          valueFrom:
-            secretKeyRef:
-              name: contrast
-              key: service-key
-        - name: CONTRAST__API__URL
-          valueFrom:
-            secretKeyRef:
-              name: contrast
-              key: url
-        - name: CONTRAST__API__USER_NAME
-          valueFrom:
-            secretKeyRef:
-              name: contrast
-              key: user-name
+        - name: contrast-security
+          readOnly: false
+          mountPath: "/etc/contrast/"
+        env: 
         - name: ConnectionStrings__DotNetFlicksConnection
           value: "Server=tcp:localhost,1433;Initial Catalog=DotNetFlicksDb;Persist Security Info=False;User ID=sa;Password=reallyStrongPwd123;MultipleActiveResultSets=False;"
       volumes:
-      - name: contrast-volume
-        emptyDir: {}
+      - name: contrast-security
+        secret:
+          secretName: contrast-security
