@@ -18,8 +18,9 @@ namespace DotNetFlicks.Accessors.Identity
             IUserClaimsPrincipalFactory<ApplicationUser> claimsFactory,
             IOptions<IdentityOptions> optionsAccessor,
             ILogger<SignInManager<ApplicationUser>> logger,
-            IAuthenticationSchemeProvider schemes)
-                : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes)
+            IAuthenticationSchemeProvider schemes,
+            IUserConfirmation<ApplicationUser> confirmation)
+                : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation)
         {
         }
 

@@ -49,7 +49,8 @@ namespace DotNetFlicks.Web.Config
             services.Configure<FormOptions>(x => x.ValueCountLimit = 10000);
 
             //Set up MVC
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            services.AddRazorPages();
 
             //Set up dependency injection
             services.AddManagerDependencies();
@@ -69,7 +70,7 @@ namespace DotNetFlicks.Web.Config
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
+                //app.UseDatabaseErrorPage();
             }
             else
             {
@@ -82,11 +83,18 @@ namespace DotNetFlicks.Web.Config
             app.UseCookiePolicy();
             app.UseAuthentication();
 
-            app.UseMvc(routes =>
+            /*app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+            });*/
+
+            app.UseRouting();
+            app.UseAuthorization();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
 
             //Capture errors and add an endpoint to see the error log via ELM (Error Logging Middleware)

@@ -24,8 +24,8 @@
         "ConnectionStrings__DotNetFlicksConnection": "Server=(localdb)\\mssqllocaldb;Database=DotNetFlicksDb;Trusted_Connection=True;MultipleActiveResultSets=true",
         "CORECLR_ENABLE_PROFILING": "1",
         "CORECLR_PROFILER": "{8B2CE134-0948-48CA-A4B2-80DDAD9F5791}",
-        "CORECLR_PROFILER_PATH_32": "C:\\Users\\vagrant\\code\\demo-netflicks\\DotNetFlicks.Web\\bin\\Debug\\netcoreapp2.1\\contrast\\runtimes\\win-x32\\native\\ContrastProfiler.dll",
-        "CORECLR_PROFILER_PATH_64": "C:\\Users\\vagrant\\code\\demo-netflicks\\DotNetFlicks.Web\\bin\\Debug\\netcoreapp2.1\\contrast\\runtimes\\win-x64\\native\\ContrastProfiler.dll",
+        "CORECLR_PROFILER_PATH_32": "C:\\Users\\vagrant\\code\\demo-netflicks\\DotNetFlicks.Web\\bin\\Debug\\netcoreapp3.0\\contrast\\runtimes\\win-x32\\native\\ContrastProfiler.dll",
+        "CORECLR_PROFILER_PATH_64": "C:\\Users\\vagrant\\code\\demo-netflicks\\DotNetFlicks.Web\\bin\\Debug\\netcoreapp3.0\\contrast\\runtimes\\win-x64\\native\\ContrastProfiler.dll",
         "ASPNETCORE_ENVIRONMENT": "Developer",
         "CONTRAST_CONFIG_PATH": "C:\\Users\\vagrant\\code\\demo-netflicks\\contrast_security.yaml",
         "CONTRAST__APPLICATION__NAME": "netflicks"

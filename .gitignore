@@ -346,3 +346,4 @@ contrast_security.yaml
 terraform.tfstate
 terraform.tfstate.backup
 terraform.tfvars
+*.bak

@@ -53,7 +53,7 @@ namespace DotNetFlicks.Accessors.Accessors
             if (!string.IsNullOrEmpty(request.Search))
             {
                 query = query.Where(x => x.Name.ToLower().Contains(request.Search.ToLower()));
-                _db.Database.ExecuteSqlCommand("INSERT INTO UserSearches ([UserId],[SearchTerm]) Values ('" + request.UserId + "','" + request.Search + "')");
+                _db.Database.ExecuteSqlRaw("INSERT INTO UserSearches ([UserId],[SearchTerm]) Values ('" + request.UserId + "','" + request.Search + "')");
                 //test
             }
 

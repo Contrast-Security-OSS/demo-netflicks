@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
   </PropertyGroup>
 
@@ -22,14 +22,11 @@
     <Content Remove="wwwroot\.gitignore" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Contrast.SensorsNetCore" Version="1.5.20" />
-    <PackageReference Include="Microsoft.AspNetCore.All">
-      <PrivateAssets Condition="'%(PackageReference.Version)' == ''">all</PrivateAssets>
-      <Publish Condition="'%(PackageReference.Version)' == ''">true</Publish>
-    </PackageReference>
+    <PackageReference Include="Contrast.SensorsNetCore" Version="2.0.0" />
 	<PackageReference Include="AutoMapper" Version="8.1.1" />
     <PackageReference Include="BuildBundlerMinifier" Version="2.9.406" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.Elm" Version="0.2.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.18" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotNetFlicks.Common\Common.csproj" />
