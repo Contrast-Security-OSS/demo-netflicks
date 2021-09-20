@@ -74,11 +74,6 @@ resource "azurerm_app_service" "app" {
   app_settings = {
     "ASPNETCORE_ENVIRONMENT"                    = "Development"
     "ConnectionStrings__DotNetFlicksConnection" = "Server=tcp:${azurerm_sql_server.app.name}.database.windows.net,1433;Initial Catalog=${azurerm_sql_database.app.name};Persist Security Info=False;User ID=${azurerm_sql_server.app.administrator_login};Password=${azurerm_sql_server.app.administrator_login_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-    "CORECLR_ENABLE_PROFILING"                  = "1"
-    "CORECLR_PROFILER"                          = "{8B2CE134-0948-48CA-A4B2-80DDAD9F5791}"
-    "CORECLR_PROFILER_PATH_32"                  = "D:\\home\\SiteExtensions\\Contrast.NetCore.Azure.SiteExtension\\ContrastNetCoreAppService\\runtimes\\win-x32\\native\\ContrastProfiler.dll"
-    "CORECLR_PROFILER_PATH_64"                  = "D:\\home\\SiteExtensions\\Contrast.NetCore.Azure.SiteExtension\\ContrastNetCoreAppService\\runtimes\\win-x32\\native\\ContrastProfiler.dll"
-    "CONTRAST_DATA_DIRECTORY"                   = "D:\\home\\SiteExtensions\\Contrast.NetCore.Azure.SiteExtension\\ContrastNetCoreAppService\\runtimes\\win-x32\\native\\"
     "CONTRAST__API__URL"                        = data.external.yaml.result.url
     "CONTRAST__API__USER_NAME"                  = data.external.yaml.result.user_name
     "CONTRAST__API__SERVICE_KEY"                = data.external.yaml.result.service_key
