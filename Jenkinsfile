@@ -54,9 +54,14 @@ pipeline {
             }
         }
         stage('sleeping') {
-            steps {
-                sleep 120
-            }
+          steps {
+              script {
+                  waitUntil {
+                      def r = sh returnStatus: true, script: "FQDN=\$(terraform output fqdn); wget --retry-connrefused --tries=120 --waitretry=1 -q \$FQDN -O /dev/null"
+                      return (r == 0);
+                  }
+              }
+          }
         }
         stage('exercise') {
             steps {
