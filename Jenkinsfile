@@ -59,12 +59,16 @@ pipeline {
             }
         }
         stage('exercise - qa') {
-            steps {
-                timeout(20) {
-                    sh """
-                    FQDN=\$(terraform output fqdn)
-                    BASEURL=\$FQDN node exercise.js
-                    """
+            script {
+                try {
+                    timeout(20) {
+                        sh """
+                        FQDN=\$(terraform output fqdn)
+                        BASEURL=\$FQDN node exercise.js
+                        """
+                    }
+                } catch (Exception e) {
+                    echo "Exercise stage failed, possible timeout"
                 }
             }
         }
@@ -96,12 +100,16 @@ pipeline {
             }
         }
         stage('exercise - dev') {
-            steps {
-                timeout(20) {
-                    sh """
-                    FQDN=\$(terraform output fqdn)
-                    BASEURL=\$FQDN node exercise.js
-                    """
+            script {
+                try {
+                    timeout(20) {
+                        sh """
+                        FQDN=\$(terraform output fqdn)
+                        BASEURL=\$FQDN node exercise.js
+                        """
+                    }
+                } catch (Exception e) {
+                    echo "Exercise stage failed, possible timeout"
                 }
             }
         }
@@ -133,12 +141,16 @@ pipeline {
             }
         }
         stage('attack - prod') {
-            steps {
-                timeout(20) {
-                    sh """
-                    FQDN=\$(terraform output fqdn)
-                    BASEURL=\$FQDN node attack.js
-                    """
+            script {
+                try {
+                    timeout(20) {
+                        sh """
+                        FQDN=\$(terraform output fqdn)
+                        BASEURL=\$FQDN node attack.js
+                        """
+                    }
+                } catch (Exception e) {
+                    echo "Attack stage failed, possible timeout"
                 }
             }
         }
