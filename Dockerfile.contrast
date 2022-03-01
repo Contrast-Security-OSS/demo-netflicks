@@ -7,18 +7,14 @@ COPY ./DotNetFlicks.Managers ./DotNetFlicks.Managers
 COPY ./DotNetFlicks.ViewModels ./DotNetFlicks.ViewModels
 COPY ./DotNetFlicks.Web ./DotNetFlicks.Web
 COPY ./DotNetFlicks.sln ./DotNetFlicks.sln
-#Compile the app
 RUN dotnet publish "DotNetFlicks.Web/Web.csproj" /p:Platform=x64 -c Release -o /app
 
 # Add contrast sensor package
-FROM ubuntu:bionic AS contrast
-RUN set -xe \
-    && apt-get update \
-    && apt-get install -y curl unzip \
-    && curl -v -L https://www.nuget.org/api/v2/package/Contrast.SensorsNetCore -o /tmp/contrast.sensorsnetcore.nupkg \
+ADD https://www.nuget.org/api/v2/package/Contrast.SensorsNetCore /tmp/contrast.sensorsnetcore.nupkg
+RUN apt-get update \
+    && apt-get install -y unzip \
     && unzip /tmp/contrast.sensorsnetcore.nupkg -d /tmp/contrast \
     && rm /tmp/contrast.sensorsnetcore.nupkg
-
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS final
 RUN uname -a
@@ -27,10 +23,8 @@ WORKDIR /app
 EXPOSE 80
 COPY --from=publish /app .
 #copy in contrast files
-COPY --from=contrast /tmp/contrast /opt/contrast 
-#Set the environment vars to enable the agent
+COPY --from=publish /tmp/contrast /opt/contrast 
 
 ENV ASPNETCORE_ENVIRONMENT Development
-
 
 ENTRYPOINT ["dotnet", "DotNetFlicks.Web.dll"]
