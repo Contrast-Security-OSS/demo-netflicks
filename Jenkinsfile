@@ -59,16 +59,18 @@ pipeline {
             }
         }
         stage('exercise - qa') {
-            script {
-                try {
-                    timeout(20) {
-                        sh """
-                        FQDN=\$(terraform output fqdn)
-                        BASEURL=\$FQDN node exercise.js
-                        """
+            steps {
+                script {
+                    try {
+                        timeout(20) {
+                            sh """
+                            FQDN=\$(terraform output fqdn)
+                            BASEURL=\$FQDN node exercise.js
+                            """
+                        }
+                    } catch (Exception e) {
+                        echo "Exercise stage failed, possible timeout"
                     }
-                } catch (Exception e) {
-                    echo "Exercise stage failed, possible timeout"
                 }
             }
         }
@@ -100,16 +102,18 @@ pipeline {
             }
         }
         stage('exercise - dev') {
-            script {
-                try {
-                    timeout(20) {
-                        sh """
-                        FQDN=\$(terraform output fqdn)
-                        BASEURL=\$FQDN node exercise.js
-                        """
+            steps {
+                script {
+                    try {
+                        timeout(20) {
+                            sh """
+                            FQDN=\$(terraform output fqdn)
+                            BASEURL=\$FQDN node exercise.js
+                            """
+                        }
+                    } catch (Exception e) {
+                        echo "Exercise stage failed, possible timeout"
                     }
-                } catch (Exception e) {
-                    echo "Exercise stage failed, possible timeout"
                 }
             }
         }
@@ -141,16 +145,18 @@ pipeline {
             }
         }
         stage('attack - prod') {
-            script {
-                try {
-                    timeout(20) {
-                        sh """
-                        FQDN=\$(terraform output fqdn)
-                        BASEURL=\$FQDN node attack.js
-                        """
+            steps {
+                script {
+                    try {
+                        timeout(20) {
+                            sh """
+                            FQDN=\$(terraform output fqdn)
+                            BASEURL=\$FQDN node attack.js
+                            """
+                        }
+                    } catch (Exception e) {
+                        echo "Attack stage failed, possible timeout"
                     }
-                } catch (Exception e) {
-                    echo "Attack stage failed, possible timeout"
                 }
             }
         }
