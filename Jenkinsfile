@@ -29,6 +29,8 @@ pipeline {
                 terraform init
                 npm install @playwright/test
                 npm init playwright@latest -- --quiet --browser=chromium
+                whoami
+                npx playwright test
                 """
             }
         }
