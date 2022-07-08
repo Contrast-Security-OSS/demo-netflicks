@@ -28,7 +28,7 @@ pipeline {
                 sh """
                 terraform init
                 npm install @playwright/test
-                npx playwright install --with-deps chromium
+                npm init playwright@latest -- --quiet --browser=chromium
                 """
             }
         }
