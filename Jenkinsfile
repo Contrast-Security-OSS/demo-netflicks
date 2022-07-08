@@ -28,6 +28,7 @@ pipeline {
                 sh """
                 terraform init
                 npm install @playwright/test
+                playwright install
                 """
             }
         }
