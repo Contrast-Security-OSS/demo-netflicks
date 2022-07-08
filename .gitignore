@@ -348,3 +348,11 @@ terraform.tfstate.backup
 terraform.tfvars
 *.bak
 deploy/
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/test-results/
+/playwright-report/
+/playwright/.cache/
+.DS_Store
+/e2e/tmp/

@@ -27,7 +27,7 @@ pipeline {
                 }
                 sh """
                 terraform init
-                npm i puppeteer
+                npm install @playwright/test
                 """
             }
         }
@@ -69,7 +69,7 @@ pipeline {
                         timeout(20) {
                             sh """
                             FQDN=\$(terraform output fqdn)
-                            BASEURL=\$FQDN node exercise.js
+                            BASEURL=\$FQDN npx playwright test
                             """
                         }
                     } catch (Exception e) {
@@ -116,7 +116,7 @@ pipeline {
                         timeout(20) {
                             sh """
                             FQDN=\$(terraform output fqdn)
-                            BASEURL=\$FQDN node exercise.js
+                            BASEURL=\$FQDN npx playwright test
                             """
                         }
                     } catch (Exception e) {
@@ -159,7 +159,7 @@ pipeline {
                         timeout(20) {
                             sh """
                             FQDN=\$(terraform output fqdn)
-                            BASEURL=\$FQDN node attack.js
+                            //BASEURL=\$FQDN node attack.js
                             """
                         }
                     } catch (Exception e) {
