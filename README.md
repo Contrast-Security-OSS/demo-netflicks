@@ -20,7 +20,7 @@ You can run Netflicks within a Docker container, tested on OSX. It uses a separa
 
 1. Place a .NET specific `contrast_security.yaml` file into the application's root folder.
 1. Install Terraform from here: https://www.terraform.io/downloads.html.
-1. Install PyYAML using `pip install PyYAML`.
+1. Install PyYAML using `pip install PyYAML==5.4.1`.
 1. Install the Azure cli tools using `brew update && brew install azure-cli`.
 1. Log into Azure to make sure you cache your credentials using `az login`.
 1. Edit the [variables.tf](variables.tf) file (or add a terraform.tfvars) to add your initials, preferred Azure location, app name, server name and environment.
