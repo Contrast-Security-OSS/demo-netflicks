@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS publish
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS publish
 WORKDIR /src
 COPY ./DotNetFlicks.Accessors ./DotNetFlicks.Accessors
 COPY ./DotNetFlicks.Common ./DotNetFlicks.Common 
@@ -9,7 +9,7 @@ COPY ./DotNetFlicks.Web ./DotNetFlicks.Web
 COPY ./DotNetFlicks.sln ./DotNetFlicks.sln
 RUN dotnet publish "DotNetFlicks.Web/Web.csproj" /p:Platform=x64 -c Release -o /app
 
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS final
 RUN uname -a
 RUN apt-get update && apt-get --assume-yes install libnss3-tools
 WORKDIR /app

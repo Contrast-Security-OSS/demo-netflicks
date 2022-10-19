@@ -1,6 +1,6 @@
 # Netflicks: A deliberately insecure .NET Core web application
 
-This is a .NET Core 3.1 demo application, based on https://github.com/LeviHassel/.net-flicks with added vulnerabilities. 
+This is a .NET 6.0 demo application, based on https://github.com/LeviHassel/.net-flicks with added vulnerabilities. 
 
 **Warning**: The computer running this application will be vulnerable to attacks, please take appropriate precautions.
 

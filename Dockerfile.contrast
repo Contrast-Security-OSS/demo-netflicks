@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS publish
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS publish
 WORKDIR /src
 COPY ./DotNetFlicks.Accessors ./DotNetFlicks.Accessors
 COPY ./DotNetFlicks.Common ./DotNetFlicks.Common
@@ -16,7 +16,7 @@ RUN apt-get update \
     && unzip /tmp/contrast.sensorsnetcore.nupkg -d /tmp/contrast \
     && rm /tmp/contrast.sensorsnetcore.nupkg
 
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS final
 RUN uname -a
 RUN apt-get update && apt-get --assume-yes install libnss3-tools
 WORKDIR /app
