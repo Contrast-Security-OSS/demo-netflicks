@@ -1,24 +1,13 @@
-env.terraform_version = '0.12.3'
-
 pipeline {
     agent any
+    tools {
+        terraform 'terraform'
+        nodejs 'node-lts'
+    }
 
     stages {
         stage('dependencies') {
             steps {
-                sh """
-                FILE=/usr/bin/terraform
-                if [ -f "\$FILE" ]; then
-                    echo "\$FILE exists, skipping download"
-                else
-                    echo "\$FILE does not exist"
-                    cd /tmp
-                    curl -o terraform.zip https://releases.hashicorp.com/terraform/'$terraform_version'/terraform_'$terraform_version'_linux_amd64.zip
-                    unzip -o terraform.zip
-                    sudo mv terraform /usr/bin
-                    rm -rf terraform.zip
-                fi
-                """
                 script {
                     withCredentials([file(credentialsId: env.contrast_yaml, variable: 'path')]) {
                         def contents = readFile(env.path)
@@ -26,8 +15,6 @@ pipeline {
                     }
                 }
                 sh """
-                terraform init
-                npm install @playwright/test
                 npm init playwright@latest -- --quiet --browser=chromium
                 """
             }
