@@ -15,6 +15,7 @@ pipeline {
                     }
                 }
                 sh """
+                terraform init
                 npm init playwright@latest -- --quiet --browser=chromium
                 """
             }
