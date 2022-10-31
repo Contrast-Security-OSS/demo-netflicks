@@ -1,6 +1,17 @@
 #Terraform `provider` section is required since the `azurerm` provider update to 2.0+
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "3.29.0"
+    }
+  }
+
+}
+
 provider "azurerm" {
   features {
+
   }
 }
 
@@ -60,12 +71,12 @@ resource "azurerm_app_service_plan" "app" {
   }
 }
 
-#Set up an app service
-resource "azurerm_app_service" "app" {
+resource "azurerm_windows_web_app" "app" {
   name                = "${replace(var.appname, "/[^-0-9a-zA-Z]/", "-")}-${var.initials}-app-service"
   location            = azurerm_resource_group.personal.location
   resource_group_name = azurerm_resource_group.personal.name
-  app_service_plan_id = azurerm_app_service_plan.app.id
+  service_plan_id     = azurerm_app_service_plan.app.id
+  zip_deploy_file     = "./deploy/deploy.zip"
 
   site_config {
     always_on = true
@@ -84,66 +95,22 @@ resource "azurerm_app_service" "app" {
     "CONTRAST__APPLICATION__SESSION_METADATA"   = var.session_metadata
     "CONTRAST__SERVER__TAGS"                    = var.servertags
     "CONTRAST__APPLICATION__TAGS"               = var.apptags
-    "CONTRAST__AGENT__LOGGER__LEVEL"          = "INFO"
-    "CONTRAST__AGENT__LOGGER__ROLL_DAILY"     = "true"
-    "CONTRAST__AGENT__LOGGER__BACKUPS"         = "30"
+    "CONTRAST__AGENT__LOGGER__LEVEL"            = "INFO"
+    "CONTRAST__AGENT__LOGGER__ROLL_DAILY"       = "true"
+    "CONTRAST__AGENT__LOGGER__BACKUPS"          = "30"
   }
-
-  provisioner "local-exec" {
-    command     = "./deploy.sh"
-    working_dir = path.module
-
-    environment = {
-      webappname        = "${replace(var.appname, "/[^-0-9a-zA-Z]/", "-")}-${var.initials}-app-service"
-      resourcegroupname = azurerm_resource_group.personal.name
-    }
-  }
-}
-
-resource "null_resource" "before" {
-  depends_on = [azurerm_app_service.app]
-}
-
-resource "null_resource" "delay" {
-  provisioner "local-exec" {
-    command = "sleep 40"
-  }
-  triggers = {
-    "before" = "${null_resource.before.id}"
-  }
-}
-
-resource "null_resource" "after" {
-  depends_on = [null_resource.delay]
 }
 
 resource "azurerm_template_deployment" "extension" {
   name                = "extension"
-  resource_group_name = azurerm_app_service.app.resource_group_name
+  resource_group_name = azurerm_windows_web_app.app.resource_group_name
   template_body       = file("siteextensions.json")
 
   parameters = {
-    "siteName"          = azurerm_app_service.app.name
-    "extensionName"     = "Contrast.NetCore.Azure.SiteExtension"   
+    "siteName"      = azurerm_windows_web_app.app.name
+    "extensionName" = "Contrast.NetCore.Azure.SiteExtension"
 
   }
 
-  deployment_mode     = "Incremental"
-  #wait until the app service starts before installing the extension
-  depends_on = [null_resource.delay]
-
-  #restart the app service after installing the extension
-  provisioner "local-exec" {
-    command     = "az webapp restart --name ${azurerm_app_service.app.name} --resource-group ${azurerm_app_service.app.resource_group_name}"      
-  }
-
-}
-
-resource "null_resource" "restart" {
-  provisioner "local-exec" {
-    command     = "az webapp restart --name ${azurerm_app_service.app.name} --resource-group ${azurerm_app_service.app.resource_group_name}"      
-  }
-  triggers = {
-    "before" = "${azurerm_template_deployment.extension.id}"
-  }
+  deployment_mode = "Incremental"
 }

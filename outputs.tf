@@ -1,5 +1,5 @@
 output "fqdn" {
-  value = "https://${azurerm_app_service.app.default_site_hostname}"
+  value = "https://${azurerm_windows_web_app.app.default_hostname}"
 }
 
 output "contrast" {
