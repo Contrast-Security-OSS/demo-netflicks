@@ -2,7 +2,6 @@ pipeline {
     agent any
     tools {
         terraform 'terraform'
-        nodejs 'node-lts'
     }
 
     stages {
