@@ -33,11 +33,10 @@ The terraform file will automatically add the Contrast .NET Azure site extension
 
 # Running automated tests
 
-There is a test script which you can use to reveal all the vulnerabilities which requires node and puppeteer.
+There is a test script which you can use to reveal all the vulnerabilities which requires node and playwright.
 
 1. Install Node, NPM and Chrome.
-1. From the app folder run `npm i puppeteer`.
-1. Run `BASEURL=https://<your service name>.azurewebsites.net node exercise.js` or `BASEURL=https://<your service name>.azurewebsites.net DEBUG=true node exercise.js` to watch the automated script.
+1. Run `BASEURL=<url> npx playwright test`.
 
 # Deploying a new version
 

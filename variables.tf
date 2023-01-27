@@ -30,7 +30,7 @@ variable "session_metadata" {
 
 variable "python_binary" {
   description = "Path to local Python binary"
-  default     = "python"
+  default     = "python3"
 }
 
 variable "apptags" {
