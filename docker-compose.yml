@@ -10,7 +10,7 @@ services:
       - '1433:1433'
       
   web:
-    image: contrastsecuritydemo/netflicks:1.0
+    image: netflicks:1.0
     depends_on:
       - database
     ports:
@@ -28,6 +28,3 @@ services:
       - CONTRAST__SERVER__ENVIRONMENT=qa
 volumes:
   mysql-data:
-
-
-

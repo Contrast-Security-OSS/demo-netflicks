@@ -27,20 +27,22 @@ test.describe('purchase', () => {
   test('rent movie', async ({ page }) => {
     await page.goto('/Movie/View/157336');
 
-    await page.locator('text=Rent ($3.99)').click();
-
-    await page.locator('#rent-modal >> text=I promise to pay').click();
-
+    const count = await page.locator('text=Watch').count();
+    if (count == 0) {
+      await page.locator('text=Rent ($3.99)').click();
+      await page.locator('#rent-modal >> text=I promise to pay').click();
+    }
     await expect(page).toHaveTitle('Interstellar - DotNetFlicks');
   })
 
   test('buy movie', async ({ page }) => {
     await page.goto('/Movie/View/433808');
 
-    await page.locator('text=Buy ($13.99)').click();
-
-    await page.locator('#buy-modal >> text=I promise to pay').click();
-
+    const count = await page.locator('text=Watch').count();
+    if (count == 0) {    
+      await page.locator('text=Buy ($13.99)').click();
+      await page.locator('#buy-modal >> text=I promise to pay').click();
+    }
     await expect(page).toHaveTitle('The Ritual - DotNetFlicks');
   })
 });
