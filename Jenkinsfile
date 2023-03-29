@@ -15,8 +15,8 @@ pipeline {
                 }
                 sh '''
                 terraform init -upgrade
-                npm i @playwright/test --no-bin-links
-                npx playwright install --with-deps chromium
+                npm i @playwright/test@1.32.1 --no-bin-links --no-save
+                npx playwright@1.32.1 install --with-deps chromium
                 '''
             }
         }
@@ -59,7 +59,7 @@ pipeline {
                         timeout(20) {
                             sh """
                             FQDN=\$(terraform output --raw fqdn)
-                            BASEURL=\$FQDN npx playwright test e2e/assess/*.ts
+                            BASEURL=\$FQDN npx playwright@1.32.1 test e2e/assess/*.ts
                             """
                         }
                     } catch (Exception e) {
@@ -106,7 +106,7 @@ pipeline {
                         timeout(20) {
                             sh """
                             FQDN=\$(terraform output --raw fqdn)
-                            BASEURL=\$FQDN npx playwright test e2e/assess/*.ts
+                            BASEURL=\$FQDN npx playwright@1.32.1 test e2e/assess/*.ts
                             """
                         }
                     } catch (Exception e) {
@@ -153,7 +153,7 @@ pipeline {
                         timeout(20) {
                             sh """
                             FQDN=\$(terraform output --raw fqdn)
-                            BASEURL=\$FQDN npx playwright test e2e/protect/*.ts
+                            BASEURL=\$FQDN npx playwright@1.32.1 test e2e/protect/*.ts
                             """
                         }
                     } catch (Exception e) {
