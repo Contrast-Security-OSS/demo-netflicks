@@ -27,23 +27,10 @@ docker build -f Dockerfile.contrast . -t netflicks:1.0
 
 Inspect the `Dockerfile`, you should note a few sections where the Contrast agent is added:
 
-Line 13-20 utilizes a build stage to fetch in the latest Contrast .NET Core agent.
+Line 19 copies the latest Contrast .NET Core agent from Docker Hub to the final image.
 
 ```dockerfile
-# Add contrast sensor package
-FROM ubuntu:bionic AS contrast
-RUN set -xe \
-    && apt-get update \
-    && apt-get install -y curl unzip \
-    && curl -v -L https://www.nuget.org/api/v2/package/Contrast.SensorsNetCore -o /tmp/contrast.sensorsnetcore.nupkg \
-    && unzip /tmp/contrast.sensorsnetcore.nupkg -d /tmp/contrast \
-    && rm /tmp/contrast.sensorsnetcore.nupkg
-```
-
-Line 30 copies in the resulting directory to the final image.
-
-```dockerfile
-COPY --from=contrast /tmp/contrast /opt/contrast
+COPY --from=contrast/agent-dotnet-core:latest /contrast /opt/contrast
 ```
 
 For more details on adding the Contrast agent to your application/image. [See our docker guide on the subject](https://support.contrastsecurity.com/hc/en-us/articles/360052815632--NET-Core-agent-with-Docker).
@@ -176,7 +163,7 @@ env:
         - name: CONTRAST__AGENT__SERVICE__LOGGER__LEVEL
           value: "INFO"
         - name: CORECLR_PROFILER_PATH_64
-          value: "/opt/contrast/contentFiles/any/netstandard2.0/contrast/runtimes/linux-x64/native/ContrastProfiler.so"
+          value: "/opt/contrast/runtimes/linux-x64/native/ContrastProfiler.so"
         - name: CORECLR_PROFILER
           value: "{8B2CE134-0948-48CA-A4B2-80DDAD9F5791}"
         - name: CORECLR_ENABLE_PROFILING
@@ -196,7 +183,7 @@ CONTRAST__SERVER__ENVIRONMENT=qa
 CONTRAST_CONFIG_PATH=/etc/contrast/contrast_security.yaml
 AGENT__LOGGER__STDOUT=true
 AGENT__LOGGER__LEVEL=INFO
-CORECLR_PROFILER_PATH_64=/opt/contrast/contentFiles/any/netstandard2.0/contrast/runtimes/linux-x64/native/ContrastProfiler.so
+CORECLR_PROFILER_PATH_64=/opt/contrast/runtimes/linux-x64/native/ContrastProfiler.so
 CORECLR_PROFILER={8B2CE134-0948-48CA-A4B2-80DDAD9F5791}
 CORECLR_ENABLE_PROFILING=1
 CONTRAST_CORECLR_LOGS_DIRECTORY=/opt/contrast
