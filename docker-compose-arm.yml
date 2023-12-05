@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  database:
+    #image: mcr.microsoft.com/mssql/server:2019-latest
+    image: mcr.microsoft.com/azure-sql-edge
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=reallyStrongPwd123
+    ports:
+      - '1433:1433'
+      
+  web:
+    image: netflicks:1.0
+    depends_on:
+      - database
+    ports:
+      - '80:80'
+    volumes:
+      - ./contrast_security.yaml:/etc/contrast/dotnet-core/contrast_security.yaml
+    environment:
+      - ConnectionStrings__DotNetFlicksConnection=Server=tcp:database,1433;Initial Catalog=DotNetFlicksDb;Persist Security Info=False;User ID=sa;Password=reallyStrongPwd123;MultipleActiveResultSets=False;
+      - CORECLR_PROFILER_PATH_64=/opt/contrast/contentFiles/any/netstandard2.0/contrast/runtimes/linux-arm64/native/ContrastProfiler.so
+      - CORECLR_PROFILER={8B2CE134-0948-48CA-A4B2-80DDAD9F5791}
+      - CORECLR_ENABLE_PROFILING=1
+      - CONTRAST_CORECLR_LOGS_DIRECTORY=/opt/contrast/
+      - CONTRAST__APPLICATION__NAME=netflicks
+      - CONTRAST__SERVER__NAME=docker
+      - CONTRAST__SERVER__ENVIRONMENT=qa
+volumes:
+  mysql-data:

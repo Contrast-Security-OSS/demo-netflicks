@@ -1,0 +1,30 @@
+FROM mcr.microsoft.com/dotnet/sdk:6.0-bullseye-slim-arm64v8 AS publish
+WORKDIR /src
+COPY ./DotNetFlicks.Accessors ./DotNetFlicks.Accessors
+COPY ./DotNetFlicks.Common ./DotNetFlicks.Common
+COPY ./DotNetFlicks.Engines ./DotNetFlicks.Engines
+COPY ./DotNetFlicks.Managers ./DotNetFlicks.Managers
+COPY ./DotNetFlicks.ViewModels ./DotNetFlicks.ViewModels
+COPY ./DotNetFlicks.Web ./DotNetFlicks.Web
+COPY ./DotNetFlicks.sln ./DotNetFlicks.sln
+RUN dotnet publish "DotNetFlicks.Web/Web.csproj" /p:Platform=arm64 -c Release -o /app
+
+# Add contrast sensor package
+ADD https://www.nuget.org/api/v2/package/Contrast.SensorsNetCore /tmp/contrast.sensorsnetcore.nupkg
+RUN apt-get update \
+    && apt-get install -y unzip \
+    && unzip /tmp/contrast.sensorsnetcore.nupkg -d /tmp/contrast \
+    && rm /tmp/contrast.sensorsnetcore.nupkg
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim-arm64v8 AS final
+RUN uname -a
+RUN apt-get update && apt-get --assume-yes install libnss3-tools
+WORKDIR /app
+EXPOSE 80
+COPY --from=publish /app .
+#copy in contrast files
+COPY --from=publish /tmp/contrast /opt/contrast 
+
+ENV ASPNETCORE_ENVIRONMENT Development
+
+ENTRYPOINT ["dotnet", "DotNetFlicks.Web.dll"]

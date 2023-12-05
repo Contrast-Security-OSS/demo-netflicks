@@ -11,23 +11,27 @@ The credentials for admin access are admin@dotnetflicks.com / p@ssWORD471
 You can run Netflicks within a Docker container, tested on OSX. It uses a separate sql server as specified within docker-compose.yml (you should not need to edit this file). The agent is added automatically during the Docker build process.
 
 1. Place a .NET specific `contrast_security.yaml` file into the application's root folder.
-1. Build the Netflicks container image using `./image.sh`
-1. Run the containers using `docker-compose up`
+1. Build the Netflicks container image using:
+    * for x64 use `docker build -f Dockerfile.contrast . -t netflicks:1.0`
+    * for ARM64 use `docker build -f Dockerfile.contrast.arm . -t netflicks:1.0`
+1. Run the containers using:
+    * for x64 use `docker-compose -f docker-compose-x64.yml up`
+    * for ARM64 use `docker-compose -f docker-compose-arm.yml up`
 
 # Running in Azure (Azure App Service):
 
 ## Pre-Requisites
 
 1. Place a .NET specific `contrast_security.yaml` file into the application's root folder.
-1. Install Terraform from here: https://www.terraform.io/downloads.html.
-1. Install PyYAML using `pip install PyYAML==5.4.1`.
+1. Install Terraform from here: https://www.terraform.io/downloads.html or using `brew update && brew install terraform`.
+1. Install PyYAML using `pip3 install PyYAML`.
 1. Install the Azure cli tools using `brew update && brew install azure-cli`.
 1. Log into Azure to make sure you cache your credentials using `az login`.
 1. Edit the [variables.tf](variables.tf) file (or add a terraform.tfvars) to add your initials, preferred Azure location, app name, server name and environment.
-1. Run `terraform init` to download the required plugins.
-1. Run `terraform plan` and check the output for errors.
-1. Run `terraform apply` to build the infrastructure that you need in Azure, this will output the web address for the application. If you receive a HTTP 503 error when visiting the app then wait 30 seconds for the application to initialize.
-1. Run `terraform destroy` when you would like to stop the app service and release the resources.
+1. Run `(cd terraform && terraform init)` to download the required plugins.
+1. Run `(cd terraform && terraform plan)` and check the output for errors.
+1. Run `(cd terraform && terraform apply)` to build the infrastructure that you need in Azure, this will output the web address for the application. If you receive a HTTP 503 error when visiting the app then wait 30 seconds for the application to initialize.
+1. Run `(cd terraform && terraform destroy)` when you would like to stop the app service and release the resources.
 
 The terraform file will automatically add the Contrast .NET Azure site extension, so you will always get the latest version.
 

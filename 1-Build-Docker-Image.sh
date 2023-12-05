@@ -1,1 +1,0 @@
-docker build -f Dockerfile.contrast . -t netflicks:1.0

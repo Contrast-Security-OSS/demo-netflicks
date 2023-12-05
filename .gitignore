@@ -26,6 +26,8 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+/temp
+/output
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -357,3 +359,10 @@ deploy/
 .DS_Store
 /e2e/tmp/
 tmp/admin.json
+results.sarif
+target/
+.terraform.lock.hcl
+.DS_Store
+.dccache
+.vscode/tasks.json
+.vscode/launch.json
