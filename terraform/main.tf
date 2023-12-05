@@ -70,7 +70,7 @@ resource "azurerm_windows_web_app" "app" {
   location            = azurerm_resource_group.personal.location
   resource_group_name = azurerm_resource_group.personal.name
   service_plan_id     = azurerm_service_plan.app.id
-  zip_deploy_file     = "./deploy/deploy.zip"
+  zip_deploy_file     = "../deploy/deploy.zip"
 
   site_config {
     always_on = true
