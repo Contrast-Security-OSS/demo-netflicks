@@ -5,7 +5,7 @@
   "dependencies": {
   },
   "devDependencies": {
-    "@playwright/test": "^1.23.0"
+    "@playwright/test": "1.32.1"
   },
   "scripts": {
     "e2e": "npx playwright test"
