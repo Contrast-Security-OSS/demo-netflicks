@@ -25,9 +25,6 @@ services:
       - CORECLR_PROFILER={8B2CE134-0948-48CA-A4B2-80DDAD9F5791}
       - CORECLR_ENABLE_PROFILING=1
       - CONTRAST_CORECLR_LOGS_DIRECTORY=/opt/contrast/
-      - CONTRAST__APPLICATION__NAME=Netflicks WhiteBox Pentest 
-      - CONTRAST__SERVER__NAME=docker
-      - CONTRAST__SERVER__ENVIRONMENT=qa
-      # - CONTRAST__APPLICATION__SESSION_METADATA=branch=qa,committer=Taylor,buildNumber=983749278
+
 volumes:
   mysql-data:
