@@ -1,4 +1,5 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS publish
+ARG TARGETARCH
 WORKDIR /src
 COPY ./DotNetFlicks.Accessors ./DotNetFlicks.Accessors
 COPY ./DotNetFlicks.Common ./DotNetFlicks.Common
@@ -7,23 +8,25 @@ COPY ./DotNetFlicks.Managers ./DotNetFlicks.Managers
 COPY ./DotNetFlicks.ViewModels ./DotNetFlicks.ViewModels
 COPY ./DotNetFlicks.Web ./DotNetFlicks.Web
 COPY ./DotNetFlicks.sln ./DotNetFlicks.sln
-RUN dotnet publish "DotNetFlicks.Web/Web.csproj" /p:Platform=x64 -c Release -o /app
-
-# Add contrast sensor package
-ADD https://www.nuget.org/api/v2/package/Contrast.SensorsNetCore /tmp/contrast.sensorsnetcore.nupkg
-RUN apt-get update \
-    && apt-get install -y unzip \
-    && unzip /tmp/contrast.sensorsnetcore.nupkg -d /tmp/contrast \
-    && rm /tmp/contrast.sensorsnetcore.nupkg
+RUN dotnet publish "DotNetFlicks.Web/Web.csproj" /p:Platform=$TARGETARCH -c Release -o /app
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS final
 RUN uname -a
 RUN apt-get update && apt-get --assume-yes install libnss3-tools
 WORKDIR /app
-EXPOSE 80
+EXPOSE 8081
+
+# Copy in app files from the publish dir
 COPY --from=publish /app .
-#copy in contrast files
-COPY --from=publish /tmp/contrast /opt/contrast 
+
+# Copy the agent from the contrast agent image
+COPY --from=contrast/agent-dotnet-core:latest /contrast /opt/contrast
+RUN ln -s /opt/contrast/runtimes/linux-x64 /opt/contrast/runtimes/linux-amd64
+
+ARG TARGETARCH
+
+# Needs to be linux-arm64 or linux-x64 or win-x64 or win-x86
+ENV CORECLR_PROFILER_PATH_64 /opt/contrast/runtimes/linux-$TARGETARCH/native/ContrastProfiler.so
 
 ENV ASPNETCORE_ENVIRONMENT Development
 

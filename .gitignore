@@ -356,4 +356,5 @@ deploy/
 /playwright/.cache/
 .DS_Store
 /e2e/tmp/
-tmp/admin.json
+tmp/admin.json 
+
