@@ -1,33 +1,10 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS publish
+FROM contrastsecuritydemo/netflicks:latest-no-agent
 ARG TARGETARCH
-WORKDIR /src
-COPY ./DotNetFlicks.Accessors ./DotNetFlicks.Accessors
-COPY ./DotNetFlicks.Common ./DotNetFlicks.Common
-COPY ./DotNetFlicks.Engines ./DotNetFlicks.Engines
-COPY ./DotNetFlicks.Managers ./DotNetFlicks.Managers
-COPY ./DotNetFlicks.ViewModels ./DotNetFlicks.ViewModels
-COPY ./DotNetFlicks.Web ./DotNetFlicks.Web
-COPY ./DotNetFlicks.sln ./DotNetFlicks.sln
-RUN dotnet publish "DotNetFlicks.Web/Web.csproj" /p:Platform=$TARGETARCH -c Release -o /app
-
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS final
-RUN uname -a
-RUN apt-get update && apt-get --assume-yes install libnss3-tools
-WORKDIR /app
-EXPOSE 8081
-
-# Copy in app files from the publish dir
-COPY --from=publish /app .
 
 # Copy the agent from the contrast agent image
 COPY --from=contrast/agent-dotnet-core:latest /contrast /opt/contrast
+# Workaround for architecture naming differences between .NET Core and Contrast
 RUN ln -s /opt/contrast/runtimes/linux-x64 /opt/contrast/runtimes/linux-amd64
-
-ARG TARGETARCH
 
 # Needs to be linux-arm64 or linux-x64 or win-x64 or win-x86
 ENV CORECLR_PROFILER_PATH_64 /opt/contrast/runtimes/linux-$TARGETARCH/native/ContrastProfiler.so
-
-ENV ASPNETCORE_ENVIRONMENT Development
-
-ENTRYPOINT ["dotnet", "DotNetFlicks.Web.dll"]
