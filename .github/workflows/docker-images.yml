@@ -2,9 +2,13 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: 
+      - main
+    tags: 
+      - v*
   pull_request:
-    branches: [ "main" ]
+    branches: 
+      - main
   workflow_dispatch:
 
 jobs:
@@ -86,9 +90,8 @@ jobs:
             latest=true
             suffix=agent
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{version}}
+            type=semver,pattern={{version}}, priority=100
+            type=semver,pattern={{major}}.{{minor}}, priority=200
           
       - name: Version number 
         run: |
