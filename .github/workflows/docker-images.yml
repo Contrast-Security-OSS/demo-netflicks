@@ -82,6 +82,9 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: contrastsecuritydemo/netflicks
+          flavor: |
+            latest=true
+            suffix=agent
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -90,7 +93,7 @@ jobs:
       - name: Version number 
         run: |
           echo Getting the old build number
-          echo ::set-output name=build_number::$(echo ${{ steps.metadata.outputs.tags }} | cut -d'.' -f3)
+          echo $(echo ${{ steps.metadata.outputs.tags }})
 
           
 
