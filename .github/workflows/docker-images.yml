@@ -70,6 +70,31 @@ jobs:
           cd e2e
           npx playwright test
 
+  pre-merge:
+    name: Prepare to merge
+    runs-on: ubuntu-latest
+    needs: 
+      - test
+
+    steps:              
+      - name: Docker Metadata action
+        id: metadata    
+        uses: docker/metadata-action@v5
+        with:
+          images: contrastsecuritydemo/netflicks
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{version}}
+          
+      - name: Version number 
+        run: |
+          echo Getting the old build number
+          echo ::set-output name=build_number::$(echo ${{ steps.metadata.outputs.tags }} | cut -d'.' -f3)
+
+          
+
+
   merge:
     name: Merge if PR is merged and tests pass
     if: github.event.pull_request.merged
