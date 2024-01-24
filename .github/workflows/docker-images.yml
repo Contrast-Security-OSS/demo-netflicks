@@ -36,6 +36,8 @@ jobs:
         with: 
           push: false
           load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: contrastsecuritydemo/netflicks:latest-no-agent
           outputs: type=docker,dest=/tmp/latest-no-agent.tar
 
