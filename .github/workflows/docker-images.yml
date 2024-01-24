@@ -37,10 +37,18 @@ jobs:
           push: false
           load: true
           tags: contrastsecuritydemo/netflicks:latest-no-agent
+      - 
+        name: Upload docker build artifact for use in next job
+        uses: actions/upload-artifact@v3
+        with:
+          name: latest
+          path: /tmp/latest-no-agent.tar
   
   build-contrast:
     name: Docker Build Contrast (agent)
     runs-on: ubuntu-latest
+    needs: 
+      - build-base
     steps:
       -
         name: Checkout branch
