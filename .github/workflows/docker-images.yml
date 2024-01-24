@@ -37,6 +37,8 @@ jobs:
           push: false
           load: true
           tags: contrastsecuritydemo/netflicks:latest-no-agent
+          outputs: type=docker,dest=/tmp/latest-no-agent.tar
+
       - 
         name: Upload docker build artifact for use in next job
         uses: actions/upload-artifact@v3
