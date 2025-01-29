@@ -1,45 +1,57 @@
 variable "initials" {
   description = "Enter your initials to include in URLs. Lowercase only!!!"
-  default     = ""
+  type = string
+}
+
+variable instance_name {
+  description = "A unique name for this instance of the app. Typically the project or TeamServer organisation the agent will report to."
+  type = string
 }
 
 variable "location" {
   description = "The Azure location where all resources in this example should be created, to find your nearest run `az account list-locations -o table`"
-  default     = ""
+  type = string
 }
 
-variable "appname" {
+variable "contrast_agent_token" {
+  description = "The API token for the Contrast agent to communicate back to Contrast TeamServer."
+  type = string
+  sensitive = true
+}
+
+variable "contrast_application_name" {
   description = "The name of the app to display in Contrast TeamServer. Also used for DNS, so no spaces please!"
-  default     = "netflicks"
+  type = string
+  default     = "demo-netflicks"
 }
 
-variable "servername" {
+variable "contrast_server_name" {
   description = "The name of the server to display in Contrast TeamServer."
-  default     = "netflicks-app-service"
+  type = string
+  default     = "azure-netflicks-app-service"
 }
 
-variable "environment" {
+variable "contrast_environment" {
   description = "The Contrast environment for the app. Valid values: development, qa or production"
+  type = string
   default     = "development"
 }
 
-variable "session_metadata" {
+variable "contrast_session_metadata" {
   description = "See https://docs.contrastsecurity.com/user-vulnerableapps.html#session"
+  type = string
   default     = ""
 }
 
-variable "python_binary" {
-  description = "Path to local Python binary"
-  default     = "python3"
-}
-
-variable "apptags" {
+variable "contrast_application_tags" {
   description = "Tags to be associated with the app in Contrast TeamServer."
+  type = string
   default     = ""
 }
 
-variable "servertags" {
+variable "contrast_server_tags" {
   description = "Tags to be associated with the server in Contrast TeamServer."
+  type = string
   default     = ""
 }
 
