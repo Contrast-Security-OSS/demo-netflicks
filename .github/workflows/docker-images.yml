@@ -42,11 +42,12 @@ jobs:
           outputs: type=docker,dest=${{ runner.temp }}/latest-no-agent.tar
 
       - 
-        name: Upload docker build artifact for use in next job
-        uses: actions/upload-artifact@v4
+        name: Create cache for docker images for use in the next job
+        uses: actions/cache@v4
         with:
-          name: latest-no-agent
+          key: latest-no-agent
           path: ${{ runner.temp }}/latest-no-agent.tar
+
   
   build-contrast:
     name: Docker Build Contrast (agent)
@@ -76,10 +77,10 @@ jobs:
           tags: contrastsecuritydemo/netflicks:latest
           outputs: type=docker,dest=${{ runner.temp }}/latest.tar
       - 
-        name: Upload docker build artifact for use in next job
-        uses: actions/upload-artifact@v3
+        name: Create cache for docker images for use in the next job
+        uses: actions/cache@v4
         with:
-          name: latest
+          key: latest
           path: ${{ runner.temp }}/latest.tar
 
 
@@ -91,17 +92,17 @@ jobs:
       - build-contrast
     steps:
       - 
-        name: Download latest-no-agent artifact
-        uses: actions/download-artifact@v4
+        name: Restore cached docker images
+        uses: actions/cache/restore@v4
         with:
-          name: latest-no-agent
           path: ${{ runner.temp }}
+          key: latest-no-agent
       - 
-        name: Download latest artifact
-        uses: actions/download-artifact@v4
+        name: Restore cached docker images
+        uses: actions/cache/restore@v4
         with:
-          name: latest
           path: ${{ runner.temp }}
+          key: latest
       - 
         name: Load images
         run: |
