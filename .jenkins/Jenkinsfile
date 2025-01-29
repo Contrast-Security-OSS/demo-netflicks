@@ -1,5 +1,10 @@
 pipeline {
     agent any
+
+    options {
+        ansiColor('xterm')
+    }
+
     tools {
         terraform 'terraform'
     }
@@ -15,8 +20,6 @@ pipeline {
                 }
                 sh '''
                 (cd terraform && terraform init -upgrade)
-                npm i @playwright/test@1.32.1 --no-bin-links --no-save
-                npx playwright@1.32.1 install --with-deps chromium
                 '''
             }
         }
@@ -37,6 +40,11 @@ pipeline {
                                 -var 'servername=jenkins' \
                                 -var 'session_metadata=branchName=qa,committer=James,buildNumber=${env.BUILD_NUMBER}')
                             """
+                            FQDN = sh (
+                                script: 'cd terraform && terraform output --raw fqdn',
+                                returnStdout: true
+                            ).trim()
+                            echo "FQDN for app is: ${FQDN}"
                         } catch (Exception e) {
                             echo 'Terraform refresh failed, deleting state'
                             sh 'rm -rf terraform/terraform.tfstate'
@@ -53,17 +61,12 @@ pipeline {
             }
         }
         stage('exercise - qa') {
+            agent { docker { image 'mcr.microsoft.com/playwright/python:v1.32.1-jammy' } }
             steps {
                 script {
-                    try {
-                        timeout(20) {
-                            sh """
-                            FQDN=\$(cd terraform && terraform output --raw fqdn)
-                            BASEURL=\$FQDN npx playwright@1.32.1 test e2e/assess/*.ts
-                            """
-                        }
-                    } catch (Exception e) {
-                        echo 'Exercise stage failed, possible timeout'
+                    steps {
+                        sh 'npm install'
+                        sh 'BASEURL=${FQDN} npx playwright@1.32.1 test e2e/assess/*.ts'
                     }
                 }
             }
@@ -162,8 +165,11 @@ pipeline {
                 }
             }
         }
-        stage('destroy') {
+    }
+    post {
+        always {
             steps {
+                sh "echo 'Cleaning up: Tear down terraform resources'"
                 withCredentials([azureServicePrincipal('ContrastAzureSponsored')]) {
                     sh """
                     export ARM_CLIENT_ID=\$AZURE_CLIENT_ID
