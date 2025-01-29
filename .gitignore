@@ -350,14 +350,14 @@ terraform.tfstate.backup
 terraform.tfvars
 *.bak
 deploy/
-/test-results/
+test-results/
 /playwright-report/
 /playwright/.cache/
 /test-results/
 /playwright-report/
 /playwright/.cache/
 .DS_Store
-/e2e/tmp/
+/tests/tmp/
 tmp/admin.json
 results.sarif
 target/
