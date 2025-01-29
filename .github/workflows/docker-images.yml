@@ -39,14 +39,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: contrastsecuritydemo/netflicks:latest-no-agent
-          outputs: type=docker,dest=/tmp/latest-no-agent.tar
+          outputs: type=docker,dest=${{ runner.temp }}/latest-no-agent.tar
 
       - 
         name: Upload docker build artifact for use in next job
         uses: actions/upload-artifact@v4
         with:
           name: latest-no-agent
-          path: /tmp/latest-no-agent.tar
+          path: ${{ runner.temp }}/latest-no-agent.tar
   
   build-contrast:
     name: Docker Build Contrast (agent)
@@ -74,13 +74,13 @@ jobs:
           push: false
           load: true
           tags: contrastsecuritydemo/netflicks:latest
-          outputs: type=docker,dest=/tmp/latest.tar
+          outputs: type=docker,dest=${{ runner.temp }}/latest.tar
       - 
         name: Upload docker build artifact for use in next job
         uses: actions/upload-artifact@v3
         with:
           name: latest
-          path: /tmp/latest.tar
+          path: ${{ runner.temp }}/latest.tar
 
 
   test:
@@ -95,18 +95,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: latest-no-agent
-          path: latest-no-agent
+          path: ${{ runner.temp }}
       - 
         name: Download latest artifact
         uses: actions/download-artifact@v4
         with:
           name: latest
-          path: latest
+          path: ${{ runner.temp }}
       - 
         name: Load images
         run: |
-          docker load --input latest-no-agent
-          docker load --input latest
+          docker load --input ${{ runner.temp }}/latest-no-agent
+          docker load --input ${{ runner.temp }}/latest
       -
         name: Checkout branch
         uses: actions/checkout@v4
