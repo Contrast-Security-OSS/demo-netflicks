@@ -43,9 +43,9 @@ jobs:
 
       - 
         name: Upload docker build artifact for use in next job
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: latest
+          name: latest-no-agent
           path: /tmp/latest-no-agent.tar
   
   build-contrast:
@@ -91,16 +91,22 @@ jobs:
       - build-contrast
     steps:
       - 
-        name: Download artifact
+        name: Download latest-no-agent artifact
         uses: actions/download-artifact@v4
         with:
-          path: /tmp
-          merge-multiple: true
+          name: latest-no-agent
+          path: latest-no-agent
+      - 
+        name: Download latest artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: latest
+          path: latest
       - 
         name: Load images
         run: |
-          docker load --input /tmp/latest-no-agent.tar
-          docker load --input /tmp/latest.tar
+          docker load --input latest-no-agent
+          docker load --input latest
       -
         name: Checkout branch
         uses: actions/checkout@v4
@@ -114,18 +120,18 @@ jobs:
       - 
         name: Install dependencies
         run: | 
-          cd e2e
+          cd test
           npm install
           npx playwright install
       - 
         name: Install playwright browsers
         run: |
-          cd e2e
+          cd test
           npx playwright install-deps chromium
       - 
         name: Run tests
         run: |
-          cd e2e
+          cd test
           npx playwright test
 
   pre-merge:
