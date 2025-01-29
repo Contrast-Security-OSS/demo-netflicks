@@ -34,7 +34,7 @@ jobs:
         name: Create cache for docker images for use in the next job
         uses: actions/cache@v4
         with:
-          key: image-key
+          key: latest-no-agent
           path: ${{ runner.temp }}
       -
         name: Build and push Docker images
@@ -72,7 +72,7 @@ jobs:
         name: Create cache for docker images for use in the next job
         uses: actions/cache@v4
         with:
-          key: image-key
+          key: latest
           path: ${{ runner.temp }}
       -
         name: Build and push Docker images
@@ -96,7 +96,13 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ${{ runner.temp }}
-          key: image-key
+          key: latest-no-agent
+      -
+        name: Restore cached docker images
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}
+          key: latest-no-agent
       - 
         name: Load images
         run: |
