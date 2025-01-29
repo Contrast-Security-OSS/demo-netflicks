@@ -31,7 +31,7 @@ test.describe('manage movies', () => {
   })
 
   test('delete a movie', async ({ page }) => {
-    await page.goto('/Movie');
+    await page.goto('Movie?sortOrder=Date_Desc&pageIndex=1&pageSize=10');
 
     await expect(page).toHaveTitle('Movies - DotNetFlicks');
 
