@@ -121,18 +121,18 @@ jobs:
       - 
         name: Install dependencies
         run: | 
-          cd test
+          cd tests
           npm install
           npx playwright install
       - 
         name: Install playwright browsers
         run: |
-          cd test
+          cd tests
           npx playwright install-deps chromium
       - 
         name: Run tests
         run: |
-          cd test
+          cd tests
           npx playwright test
 
   pre-merge:
