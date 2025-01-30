@@ -341,7 +341,6 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 .terraform.tfstate.lock.info
-package-lock.json
 
 .terraform/
 contrast_security.yaml
