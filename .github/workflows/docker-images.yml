@@ -135,7 +135,7 @@ jobs:
         name: Run Playwright tests
         run: |
           cd tests
-          BASEURL=http://web:8081 npx playwright test assess/*.ts
+          BASEURL=http://demo-netflicks-web-1:8081 npx playwright test assess/*.ts
       - 
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
