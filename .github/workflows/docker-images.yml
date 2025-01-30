@@ -117,23 +117,25 @@ jobs:
           docker compose up -d 
       - 
         name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16
       - 
         name: Install dependencies
         run: | 
           cd tests
-          npm install
-          npx playwright install
+          npm i @playwright/test
+          npx playwright install --with-deps chromium
       - 
         name: Install playwright browsers
         run: |
           cd tests
           npx playwright install-deps chromium
       - 
-        name: Run tests
+        name: Run Playwright tests
         run: |
           cd tests
-          npx playwright test
+          npx playwright test assess/*.ts
 
   pre-merge:
     name: Prepare to merge
