@@ -6,7 +6,6 @@ terraform {
       version = "3.29.0"
     }
   }
-
 }
 
 provider "azurerm" {
@@ -15,14 +14,9 @@ provider "azurerm" {
   }
 }
 
-#Extract the connection from the normal yaml file to pass to the app container
-data "external" "yaml" {
-  program = [var.python_binary, "${path.module}/parseyaml.py"]
-}
-
 #Set up a personal resource group for the SE local to them
 resource "azurerm_resource_group" "personal" {
-  name     = "Sales-Engineer-${var.initials}"
+  name     = "Sales-Engineer-${var.initials}-${var.instance_name}-${var.contrast_application_name}"
   location = var.location
 }
 
@@ -34,7 +28,7 @@ resource "random_password" "password" {
 
 #Set up a sql server
 resource "azurerm_mssql_server" "app" {
-  name                         = "${replace(var.appname, "/[^-0-9a-zA-Z]/", "-")}-${var.initials}-sql-server"
+  name                         = "${var.initials}-${var.instance_name}-${replace(var.contrast_application_name, "/[^-0-9a-zA-Z]/", "-")}-sql-server"
   resource_group_name          = azurerm_resource_group.personal.name
   location                     = azurerm_resource_group.personal.location
   version                      = "12.0"
@@ -44,13 +38,13 @@ resource "azurerm_mssql_server" "app" {
 
 #Set up a database
 resource "azurerm_mssql_database" "app" {
-  name      = "${replace(var.appname, "/[^-0-9a-zA-Z]/", "-")}-${var.initials}-sql-database"
+  name      = "${var.initials}-${var.instance_name}-${replace(var.contrast_application_name, "/[^-0-9a-zA-Z]/", "-")}-sql-database"
   server_id = azurerm_mssql_server.app.id
 }
 
 #Set up a firewall rule
 resource "azurerm_mssql_firewall_rule" "database" {
-  name             = "${replace(var.appname, "/[^-0-9a-zA-Z]/", "-")}-${var.initials}-firewall-rule"
+  name             = "${var.initials}-${var.instance_name}-${replace(var.contrast_application_name, "/[^-0-9a-zA-Z]/", "-")}-firewall-rule"
   server_id        = azurerm_mssql_server.app.id
   start_ip_address = "0.0.0.0"
   end_ip_address   = "0.0.0.0"
@@ -58,15 +52,15 @@ resource "azurerm_mssql_firewall_rule" "database" {
 
 #Set up an app service plan
 resource "azurerm_service_plan" "app" {
-  name                = "${replace(var.appname, "/[^-0-9a-zA-Z]/", "-")}-${var.initials}-serviceplan"
+  name                = "${var.initials}-${var.instance_name}-${replace(var.contrast_application_name, "/[^-0-9a-zA-Z]/", "-")}-service-plan"
   location            = azurerm_resource_group.personal.location
   resource_group_name = azurerm_resource_group.personal.name
   os_type             = "Windows"
-  sku_name            = "S1"
+  sku_name            = "B3"
 }
 
 resource "azurerm_windows_web_app" "app" {
-  name                = "${replace(var.appname, "/[^-0-9a-zA-Z]/", "-")}-${var.initials}-app-service"
+  name                = "${var.initials}-${var.instance_name}-${replace(var.contrast_application_name, "/[^-0-9a-zA-Z]/", "-")}-app"
   location            = azurerm_resource_group.personal.location
   resource_group_name = azurerm_resource_group.personal.name
   service_plan_id     = azurerm_service_plan.app.id
@@ -79,16 +73,13 @@ resource "azurerm_windows_web_app" "app" {
   app_settings = {
     "ASPNETCORE_ENVIRONMENT"                    = "Development"
     "ConnectionStrings__DotNetFlicksConnection" = "Server=tcp:${azurerm_mssql_server.app.name}.database.windows.net,1433;Initial Catalog=${azurerm_mssql_database.app.name};Persist Security Info=False;User ID=${azurerm_mssql_server.app.administrator_login};Password=${azurerm_mssql_server.app.administrator_login_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-    "CONTRAST__API__URL"                        = data.external.yaml.result.url
-    "CONTRAST__API__USER_NAME"                  = data.external.yaml.result.user_name
-    "CONTRAST__API__SERVICE_KEY"                = data.external.yaml.result.service_key
-    "CONTRAST__API__API_KEY"                    = data.external.yaml.result.api_key
-    "CONTRAST__APPLICATION__NAME"               = var.appname
-    "CONTRAST__SERVER__NAME"                    = var.servername
-    "CONTRAST__SERVER__ENVIRONMENT"             = var.environment
-    "CONTRAST__APPLICATION__SESSION_METADATA"   = var.session_metadata
-    "CONTRAST__SERVER__TAGS"                    = var.servertags
-    "CONTRAST__APPLICATION__TAGS"               = var.apptags
+    "CONTRAST__API__TOKEN"                      = var.contrast_agent_token
+    "CONTRAST__APPLICATION__NAME"               = var.contrast_application_name
+    "CONTRAST__SERVER__NAME"                    = var.contrast_server_name
+    "CONTRAST__SERVER__ENVIRONMENT"             = var.contrast_environment
+    "CONTRAST__APPLICATION__SESSION_METADATA"   = var.contrast_session_metadata
+    "CONTRAST__SERVER__TAGS"                    = var.contrast_server_tags
+    "CONTRAST__APPLICATION__TAGS"               = var.contrast_application_tags
     "CONTRAST__AGENT__LOGGER__LEVEL"            = "INFO"
     "CONTRAST__AGENT__LOGGER__ROLL_DAILY"       = "true"
     "CONTRAST__AGENT__LOGGER__BACKUPS"          = "30"

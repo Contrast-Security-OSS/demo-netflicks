@@ -25,14 +25,14 @@ test.describe('browse movies', () => {
 
 test.describe('purchase', () => {
   test('rent movie', async ({ page }) => {
-    await page.goto('/Movie/View/157336');
+    await page.goto('/Movie/View/122');
 
     const count = await page.locator('text=Watch').count();
     if (count == 0) {
-      await page.locator('text=Rent ($3.99)').click();
+      await page.locator('text=Rent ($1.99)').click();
       await page.locator('#rent-modal >> text=I promise to pay').click();
     }
-    await expect(page).toHaveTitle('Interstellar - DotNetFlicks');
+    await expect(page).toHaveTitle('The Lord of the Rings: The Return of the King - DotNetFlicks');
   })
 
   test('buy movie', async ({ page }) => {

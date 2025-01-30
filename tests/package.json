@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "This is a .NET Core 6.0 demo application, based on https://github.com/LeviHassel/.net-flicks with added vulnerabilities.",
   "dependencies": {
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
-    "@playwright/test": "1.32.1"
+    "@playwright/test": "^1.50.0"
   },
   "scripts": {
     "e2e": "npx playwright test"
