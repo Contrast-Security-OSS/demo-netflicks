@@ -1,30 +1,86 @@
-version: '3'
 
 services:
   database:
-    image: mcr.microsoft.com/azure-sql-edge
+    image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=reallyStrongPwd123
     ports:
       - '1433:1433'
-      
-  web:
+    volumes:
+      - mssql-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -U sa -P reallyStrongPwd123 -Q 'SELECT 1' -b"]
+      # test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "http://localhost:1433", "-U", "sa", "-P", "reallyStrongPwd123", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+
+  web-no-contrast:
+    image: contrastsecuritydemo/netflicks:latest-no-agent
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - '8887:80'
+    environment:
+      - ConnectionStrings__DotNetFlicksConnection=Server=tcp:database,1433;Initial Catalog=DotNetFlicksDb;Persist Security Info=False;User ID=sa;Password=reallyStrongPwd123;MultipleActiveResultSets=False;TrustServerCertificate=yes;
+
+  # Development environment for Contrast Assess demos
+  web-dev:
     image: contrastsecuritydemo/netflicks:latest
     build: 
       context: .
-      dockerfile: Dockerfile.contrast
+      dockerfile: Dockerfile
+      target: runtime-with-contrast
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     ports:
-      - '8081:80'
+      - '8888:80'
     volumes:
-      - ./contrast_security.yaml:/etc/contrast/dotnet-core/contrast_security.yaml
+      - ./contrast_security.yaml:/etc/contrast/dotnet-core/contrast_security.yaml:ro
     environment:
-      - ConnectionStrings__DotNetFlicksConnection=Server=tcp:database,1433;Initial Catalog=DotNetFlicksDb;Persist Security Info=False;User ID=sa;Password=reallyStrongPwd123;MultipleActiveResultSets=False;
-      - CORECLR_PROFILER={8B2CE134-0948-48CA-A4B2-80DDAD9F5791}
-      - CORECLR_ENABLE_PROFILING=1
-      - CONTRAST_CORECLR_LOGS_DIRECTORY=/opt/contrast/
+      - ConnectionStrings__DotNetFlicksConnection=Server=tcp:database,1433;Initial Catalog=DotNetFlicksDb;Persist Security Info=False;User ID=sa;Password=reallyStrongPwd123;MultipleActiveResultSets=False;TrustServerCertificate=yes;
+      - CONTRAST__SERVER__NAME=docker-netflicks-dev
+      - CONTRAST__SERVER__ENVIRONMENT=development
+  web-prod:
+    image: contrastsecuritydemo/netflicks:latest
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      target: runtime-with-contrast
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - '8889:80'
+    volumes:
+      - ./contrast_security.yaml:/etc/contrast/dotnet-core/contrast_security.yaml:ro
+    environment:
+      - ConnectionStrings__DotNetFlicksConnection=Server=tcp:database,1433;Initial Catalog=DotNetFlicksDb;Persist Security Info=False;User ID=sa;Password=reallyStrongPwd123;MultipleActiveResultSets=False;TrustServerCertificate=yes;
+      - CONTRAST__SERVER__NAME=docker-netflicks-prod
+      - CONTRAST__SERVER__ENVIRONMENT=production
+
+  # Testing service
+  tests:
+    build:
+      context: ./tests
+      dockerfile: Dockerfile
+    depends_on:
+      - web-dev
+    environment:
+      - BASEURL=http://web-dev:8080
+    volumes:
+      - ./tests:/tests
+    profiles:
+      - test
 
 volumes:
-  mysql-data:
+  mssql-data:
