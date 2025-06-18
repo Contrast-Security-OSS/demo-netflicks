@@ -90,6 +90,7 @@ jobs:
           docker compose --profile test up --build --abort-on-container-exit --exit-code-from tests 
       -
         name: Get currently installed Contrast agent version
+        id: versions
         run: | 
           docker compose up web-dev -d
           docker compose cp web-dev:/opt/contrast/image-manifest.json image-manifest.json
@@ -118,7 +119,7 @@ jobs:
       - name: Version number 
         run: |
           echo Getting the build metadata
-          echo $(echo ${{ steps.metadata.outputs.tags }})
+          echo ${{ steps.versions.outputs.contrast_version }}
 
   # push:
   #   name: Push Images to Docker Hub
