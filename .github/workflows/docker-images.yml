@@ -84,49 +84,19 @@ jobs:
           target: runtime-with-contrast
           tags: |
             netflicks:latest-with-agent
-
-
-  test:
-    name: Run Tests
-    runs-on: ubuntu-latest
-    needs:
-      - build
-    steps:
-      -
-        name: Checkout branch
-        uses: actions/checkout@v4
       -
         name: Run docker-compose tests
         run: | 
-          docker compose up -d 
-      - 
-        name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-      - 
-        name: Install dependencies
+          docker compose --profile test up --build --abort-on-container-exit --exit-code-from tests 
+      -
+        name: Get currently installed Contrast agent version
         run: | 
-          cd tests
-          npm ci
-          
-      - 
-        name: Install playwright browsers
-        run: |
-          cd tests
-          npx playwright install --with-deps chromium
-      - 
-        name: Run Playwright tests
-        run: |
-          cd tests
-          npx playwright test assess/*.spec.ts
-      - 
-        uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: playwright-report
-          path: tests/playwright-report/
-          retention-days: 30
+          docker compose up web-dev -d
+          docker cp web-dev:/opt/contrast/image-manifest.json image-manifest.json
+          CONTRAST_VERSION=$(cat image-manifest.json | jq -r '.version')
+          echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
+          docker compose down
+          echo "Contrast agent version: ${CONTRAST_VERSION}"
 
   pre-merge:
     name: Prepare to merge
