@@ -60,7 +60,6 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: false
-          load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: runtime
@@ -75,7 +74,6 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: false
-          load: true
           cache-from: type=gha
           target: runtime-with-contrast
           tags: |
