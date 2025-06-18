@@ -1,4 +1,5 @@
 # MULTI STAGE BUILD
+ARG CONTRAST_AGENT_VERSION=latest
 # Build stage for building the Netflicks application and it's dependencies
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 ARG TARGETARCH
@@ -39,18 +40,25 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
 RUN apt-get update && \
     apt-get install --assume-yes --no-install-recommends \
         libnss3-tools \
+        curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY --from=build /app .
 ENTRYPOINT ["dotnet", "DotNetFlicks.Web.dll"]
 
+# Contrast agent image for .NET Core applications
+
+FROM contrast/agent-dotnet-core:${CONTRAST_AGENT_VERSION} AS contrast-agent
+
+
 # Final stage for running the Netflicks application with the Contrast agent
 FROM runtime AS runtime-with-contrast
 ARG TARGETARCH
 
 # Copy the agent from the contrast agent image
-COPY --from=contrast/agent-dotnet-core:latest /contrast /opt/contrast
+COPY --from=contrast-agent /contrast /opt/contrast
+
 # Workaround for architecture naming differences between .NET Core and Contrast
 RUN ln -s /opt/contrast/runtimes/linux-x64 /opt/contrast/runtimes/linux-amd64
 

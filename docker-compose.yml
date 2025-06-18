@@ -50,6 +50,13 @@ services:
       - ConnectionStrings__DotNetFlicksConnection=Server=tcp:database,1433;Initial Catalog=DotNetFlicksDb;Persist Security Info=False;User ID=sa;Password=reallyStrongPwd123;MultipleActiveResultSets=False;TrustServerCertificate=yes;
       - CONTRAST__SERVER__NAME=docker-netflicks-dev
       - CONTRAST__SERVER__ENVIRONMENT=development
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
   web-prod:
     image: contrastsecuritydemo/netflicks:latest
     build: 
@@ -74,11 +81,10 @@ services:
       context: ./tests
       dockerfile: Dockerfile
     depends_on:
-      - web-dev
+      web-dev:
+        condition: service_healthy
     environment:
-      - BASEURL=http://web-dev:8080
-    volumes:
-      - ./tests:/tests
+      - BASEURL=http://web-dev
     profiles:
       - test
 
