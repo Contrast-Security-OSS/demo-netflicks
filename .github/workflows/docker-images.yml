@@ -45,18 +45,18 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
-      -
-        name: Get agent version
-        run: |
-          # Get the agent version from the image-manifest.json file
-          # Build a temporary container just to extract the version
-          docker build --target runtime-with-contrast -t temp-contrast .
-          CONTRAST_VERSION=$(docker run --rm temp-contrast cat /opt/contrast/image-manifest.json | jq -r '.version')
-          echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
-          docker rmi temp-contrast
+      # -
+        # name: Get agent version
+        # run: |
+        #   # Get the agent version from the image-manifest.json file
+        #   # Build a temporary container just to extract the version
+        #   docker build --target runtime-with-contrast -t temp-contrast .
+        #   CONTRAST_VERSION=$(docker run --rm temp-contrast cat /opt/contrast/image-manifest.json | jq -r '.version')
+        #   echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
+        #   docker rmi temp-contrast
           
-          # CONTRAST_VERSION=$(cat /opt/contrast/image-manifest.json | grep --only-matching '"version": "[^"]*' | cut --delimiter='"' --fields=4)
-          # echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
+        #   # CONTRAST_VERSION=$(cat /opt/contrast/image-manifest.json | grep --only-matching '"version": "[^"]*' | cut --delimiter='"' --fields=4)
+        #   # echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
       -
         name: Build no-agent variant
         id: build
@@ -70,7 +70,7 @@ jobs:
           cache-to: type=gha,mode=max
           target: runtime
           tags: |
-            contrastsecuritydemo/netflicks:latest-no-agent
+            netflicks:latest-no-agent
       -
         name: Build image with Contrast agent
         id: build-contrast
@@ -83,8 +83,7 @@ jobs:
           cache-from: type=gha
           target: runtime-with-contrast
           tags: |
-            contrastsecuritydemo/netflicks:latest-with-agent
-            contrastsecuritydemo/netflicks:latest-with-agent-${{ steps.meta.outputs.contrast_version }}
+            netflicks:latest-with-agent
 
 
   test:
