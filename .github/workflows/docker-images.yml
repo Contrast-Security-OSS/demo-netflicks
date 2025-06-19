@@ -19,6 +19,7 @@ jobs:
     outputs:
       image-digest: ${{ steps.build.outputs.digest }}
       metadata: ${{ steps.meta.outputs.json }}
+      contrast_version: ${{ steps.versions.outputs.contrast_version }}
     steps:
       -
         name: Checkout branch
