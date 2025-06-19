@@ -23,6 +23,17 @@ jobs:
       -
         name: Checkout branch
         uses: actions/checkout@v4
+      - 
+        name: Set up Docker daemon for multi-platform builds
+        uses: docker/setup-docker-action@v4
+        with:
+          daemon-config: |
+            {
+              "debug": true,
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }
       -
         name: Docker Setup QEMU
         uses: docker/setup-qemu-action@v3
@@ -45,25 +56,13 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
-      # -
-        # name: Get agent version
-        # run: |
-        #   # Get the agent version from the image-manifest.json file
-        #   # Build a temporary container just to extract the version
-        #   docker build --target runtime-with-contrast -t temp-contrast .
-        #   CONTRAST_VERSION=$(docker run --rm temp-contrast cat /opt/contrast/image-manifest.json | jq -r '.version')
-        #   echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
-        #   docker rmi temp-contrast
-          
-        #   # CONTRAST_VERSION=$(cat /opt/contrast/image-manifest.json | grep --only-matching '"version": "[^"]*' | cut --delimiter='"' --fields=4)
-        #   # echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
       -
         name: Build no-agent variant
         id: build
         uses: docker/build-push-action@v5
         with: 
           context: .
-          platforms: linux/amd64
+          platforms: linux/amd64, linux/arm64
           push: false
           load: true
           cache-from: type=gha
@@ -77,7 +76,7 @@ jobs:
         uses: docker/build-push-action@v5
         with: 
           context: .
-          platforms: linux/amd64
+          platforms: linux/amd64, linux/arm64
           push: false
           load: true
           cache-from: type=gha
