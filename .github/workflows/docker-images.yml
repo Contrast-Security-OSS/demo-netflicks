@@ -118,7 +118,7 @@ jobs:
       - name: Version number 
         run: |
           echo Getting the build metadata
-          echo ${{ steps.versions.outputs.contrast_version }}
+          echo ${{ needs.build.outputs.contrast_version }}
 
   # push:
   #   name: Push Images to Docker Hub
