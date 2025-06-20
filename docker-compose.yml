@@ -86,7 +86,7 @@ services:
     environment:
       - BASEURL=http://web-dev
     profiles:
-      - test
+      - tests
 
 volumes:
   mssql-data:

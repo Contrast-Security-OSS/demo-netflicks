@@ -46,6 +46,46 @@ jobs:
         with: 
           platforms: linux/amd64,linux/arm64
       -
+        name: Build all image variants with Docker Buildx Bake
+        uses: docker/bake-action@v3
+        with:
+          files: docker-bake.hcl
+          push: false
+          load: true
+          set: |
+            CONTRAST_AGENT_VERSION=${{ github.event.inputs.contrast_agent_version || 'latest' }}
+      -
+      #   name: Build no-agent variant
+      #   id: build
+      #   uses: docker/build-push-action@v5
+      #   with: 
+      #     context: .
+      #     platforms: linux/amd64, linux/arm64
+      #     push: false
+      #     load: true
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
+      #     target: runtime
+      #     tags: |
+      #       netflicks:latest-no-agent
+      # -
+      #   name: Build image with Contrast agent
+      #   id: build-contrast
+      #   uses: docker/build-push-action@v5
+      #   with: 
+      #     context: .
+      #     platforms: linux/amd64, linux/arm64
+      #     push: false
+      #     load: true
+      #     cache-from: type=gha
+      #     target: runtime-with-contrast
+      #     tags: |
+      #       netflicks:latest-with-agent
+      -
+        name: Run docker-compose tests
+        run: | 
+          docker compose --profile test up --abort-on-container-exit --exit-code-from tests 
+      -
         name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -57,37 +97,6 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
-      -
-        name: Build no-agent variant
-        id: build
-        uses: docker/build-push-action@v5
-        with: 
-          context: .
-          platforms: linux/amd64, linux/arm64
-          push: false
-          load: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          target: runtime
-          tags: |
-            netflicks:latest-no-agent
-      -
-        name: Build image with Contrast agent
-        id: build-contrast
-        uses: docker/build-push-action@v5
-        with: 
-          context: .
-          platforms: linux/amd64, linux/arm64
-          push: false
-          load: true
-          cache-from: type=gha
-          target: runtime-with-contrast
-          tags: |
-            netflicks:latest-with-agent
-      -
-        name: Run docker-compose tests
-        run: | 
-          docker compose --profile test up --build --abort-on-container-exit --exit-code-from tests 
       -
         name: Get currently installed Contrast agent version
         id: versions

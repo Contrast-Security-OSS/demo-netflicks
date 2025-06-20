@@ -47,8 +47,9 @@ WORKDIR /app
 COPY --from=build /app .
 ENTRYPOINT ["dotnet", "DotNetFlicks.Web.dll"]
 
-# Contrast agent image for .NET Core applications
 
+# Contrast agent image for .NET Core applications
+# Need the extra FROM line here for the CONTRAST_AGENT_VERSION argument to work
 FROM contrast/agent-dotnet-core:${CONTRAST_AGENT_VERSION} AS contrast-agent
 
 
@@ -59,11 +60,11 @@ ARG TARGETARCH
 # Copy the agent from the contrast agent image
 COPY --from=contrast-agent /contrast /opt/contrast
 
-# Workaround for architecture naming differences between .NET Core and Contrast
-RUN ln -s /opt/contrast/runtimes/linux-x64 /opt/contrast/runtimes/linux-amd64
-
+# Handle architecture naming differences between TARGETARCH and Contrast using 
+# shell variable substitution: ${TARGETARCH/arm64/x64} (requires bash)
+SHELL ["/bin/bash", "-c"]
 # Needs to be linux-arm64 or linux-x64 or win-x64 or win-x86
-ENV CORECLR_PROFILER_PATH_64=/opt/contrast/runtimes/linux-$TARGETARCH/native/ContrastProfiler.so \
+ENV CORECLR_PROFILER_PATH_64=/opt/contrast/runtimes/linux-${TARGETARCH/arm64/x64}/native/ContrastProfiler.so \
     CORECLR_PROFILER={8B2CE134-0948-48CA-A4B2-80DDAD9F5791} \
     CORECLR_ENABLE_PROFILING=1 \
     CONTRAST_CORECLR_LOGS_DIRECTORY=/opt/contrast
