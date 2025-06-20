@@ -49,7 +49,9 @@ jobs:
         name: Build all image variants with Docker Buildx Bake
         uses: docker/bake-action@v3
         with:
-          files: docker-bake.hcl
+          files: |
+            docker-bake.hcl
+            cwd://${{ runner.temp }}/bake-meta.json
           targets: |
             runtime-multiarch
             runtime-with-contrast-multiarch
@@ -111,6 +113,20 @@ jobs:
           echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
           docker compose down
           echo "Contrast agent version: ${CONTRAST_VERSION}"
+      - 
+        name: Export digest
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest="${{ fromJSON(steps.bake.outputs.metadata).image['containerimage.digest'] }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+      - 
+        name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
 
   pre-merge:
     name: Prepare to merge
@@ -133,6 +149,23 @@ jobs:
         run: |
           echo Getting the build metadata
           echo ${{ needs.build.outputs.contrast_version }}
+
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests
+          merge-multiple: true
+      
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create contrastsecuritydemo/netflicks:latest \
+            $(printf 'contrastsecuritydemo/netflicks:latest@sha256:%s ' *)
+
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect contrastsecuritydemo/netflicks:latest
 
   # push:
   #   name: Push Images to Docker Hub
