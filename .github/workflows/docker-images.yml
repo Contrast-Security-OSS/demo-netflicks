@@ -50,6 +50,10 @@ jobs:
         uses: docker/bake-action@v3
         with:
           files: docker-bake.hcl
+          targets: |
+            runtime-multiarch
+            runtime-with-contrast-multiarch
+            tests-multiarch
           push: false
           load: true
           # set: |
