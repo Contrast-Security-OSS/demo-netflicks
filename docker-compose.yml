@@ -19,7 +19,7 @@ services:
 
 
   web-no-contrast:
-    image: contrastsecuritydemo/netflicks:latest-no-agent
+    image: contrastsecuritydemo/netflicks:latest
     build: 
       context: .
       dockerfile: Dockerfile
@@ -34,7 +34,7 @@ services:
 
   # Development environment for Contrast Assess demos
   web-dev:
-    image: contrastsecuritydemo/netflicks:latest
+    image: contrastsecuritydemo/netflicks:latest-contrast
     build: 
       context: .
       dockerfile: Dockerfile
@@ -58,7 +58,7 @@ services:
       start_period: 10s
 
   web-prod:
-    image: contrastsecuritydemo/netflicks:latest
+    image: contrastsecuritydemo/netflicks:latest-contrast
     build: 
       context: .
       dockerfile: Dockerfile
