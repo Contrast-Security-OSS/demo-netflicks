@@ -84,7 +84,7 @@ jobs:
       -
         name: Run docker-compose tests
         run: | 
-          docker compose --profile test up --abort-on-container-exit --exit-code-from tests 
+          docker compose --profile tests up --abort-on-container-exit --exit-code-from tests 
       -
         name: Extract metadata
         id: meta
