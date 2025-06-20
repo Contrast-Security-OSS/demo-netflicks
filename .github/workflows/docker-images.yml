@@ -54,7 +54,7 @@ jobs:
           load: true
           set: |
             CONTRAST_AGENT_VERSION=${{ github.event.inputs.contrast_agent_version || 'latest' }}
-      -
+      # -
       #   name: Build no-agent variant
       #   id: build
       #   uses: docker/build-push-action@v5
