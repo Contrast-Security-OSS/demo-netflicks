@@ -52,8 +52,8 @@ jobs:
           files: docker-bake.hcl
           push: false
           load: true
-          set: |
-            CONTRAST_AGENT_VERSION=${{ github.event.inputs.contrast_agent_version || 'latest' }}
+          # set: |
+          #   CONTRAST_AGENT_VERSION=${{ github.event.inputs.contrast_agent_version || 'latest' }}
       # -
       #   name: Build no-agent variant
       #   id: build
