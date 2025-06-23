@@ -51,6 +51,14 @@ jobs:
           if-no-files-found: error
           retention-days: 1
       
+      - name: Upload docker-compose definition
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-compose
+          path: ${{ runner.temp }}/docker-compose.yml
+          if-no-files-found: error
+          retention-days: 1
+      
   build:
     name: Build Multi-Stage Docker Images
     runs-on: ubuntu-latest
@@ -110,9 +118,7 @@ jobs:
             docker-bake.hcl
             cwd://${{ runner.temp }}/bake-meta.json
           targets: |
-            runtime-multiarch
-            runtime-with-contrast-multiarch
-            tests-multiarch
+            multiarch
           push: false
           load: true
           set: | 
@@ -149,6 +155,12 @@ jobs:
       #     tags: |
       #       netflicks:latest-with-agent
 
+      - name: Download docker-compose definition
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-compose
+          path: ${{ runner.temp }}
+          
       - name: Run docker-compose tests
         run: | 
           docker compose --profile tests up --abort-on-container-exit --exit-code-from tests 
