@@ -107,8 +107,10 @@ jobs:
           echo "bake-meta.json file: ${{ runner.temp }}/bake-meta.json"
           cat "${{ runner.temp }}/bake-meta.json"
 
-      - name: Build all image variants with Docker Buildx Bake
-        id: bake
+      # Need to do two bake steps because load=true is not compatible with push-by-digest=true
+      # https://github.com/moby/buildkit/issues/5556
+      - name: Build all image variants with Docker Buildx Bake (for local testing))
+        id: bake-local
         uses: docker/bake-action@v6
         with:
           files: |
@@ -116,23 +118,11 @@ jobs:
             cwd://${{ runner.temp }}/bake-meta.json
           targets: |
             multiarch
-          # push: false
+          push: false
+          load: true
           set: | 
             *.platform=${{ matrix.platform }}
-            *.output=type=docker,push-by-digest=true,name-canonical=true,push=true
-
-      
-      - name: Inspect
-        run: |
-          docker image inspect ${{ env.REGISTRY_IMAGE }}:latest
-          docker image inspect ${{ env.REGISTRY_IMAGE }}:latest-contrast
-
-          # set: |
-          #   CONTRAST_AGENT_VERSION=${{ github.event.inputs.contrast_agent_version || 'latest' }}
-          # FROM ABOVE: 
-                        # *.tags=${{ env.REGISTRY_IMAGE }}
-                        # *.output=type=docker,push-by-digest=true,name-canonical=true,push=true
-          
+ 
       - name: Run docker-compose tests
         run: | 
           docker compose --profile tests up --abort-on-container-exit --exit-code-from tests 
@@ -158,6 +148,20 @@ jobs:
           echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
           docker compose down
           echo "Contrast agent version: ${CONTRAST_VERSION}"
+
+      - name: Build all image variants with Docker Buildx Bake (for local testing))
+        id: bake
+        uses: docker/bake-action@v6
+        with:
+          files: |
+            docker-bake.hcl
+            cwd://${{ runner.temp }}/bake-meta.json
+          targets: |
+            multiarch
+          push: false
+          set: | 
+            *.platform=${{ matrix.platform }}
+            *.output=type=image,push-by-digest=true,name-canonical=true
 
       - name: Export digest
         run: |
