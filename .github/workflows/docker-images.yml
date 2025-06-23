@@ -73,6 +73,9 @@ jobs:
     #   metadata: ${{ steps.meta.outputs.json }}
     #   contrast_version: ${{ steps.versions.outputs.contrast_version }}
     steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
       - name: Prepare
         run: |
           platform=${{ matrix.platform }}
