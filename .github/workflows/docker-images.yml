@@ -118,7 +118,7 @@ jobs:
           set: | 
             *.tags=${{ env.REGISTRY_IMAGE }}
             *.platform=${{ matrix.platform }}
-            *.output=type=image,push-by-digest=true,name-canonical=true,push=false"
+            *.output=type=image,push-by-digest=true,name-canonical=true,push=false
           # set: |
           #   CONTRAST_AGENT_VERSION=${{ github.event.inputs.contrast_agent_version || 'latest' }}
       # -
