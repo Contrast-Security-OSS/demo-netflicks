@@ -109,7 +109,7 @@ jobs:
 
       # Need to do two bake steps because load=true is not compatible with push-by-digest=true
       # https://github.com/moby/buildkit/issues/5556
-      - name: Build all image variants with Docker Buildx Bake (for local testing))
+      - name: Build all image variants with Docker Buildx Bake (for local testing)
         id: bake-local
         uses: docker/bake-action@v6
         with:
@@ -149,7 +149,7 @@ jobs:
           docker compose down
           echo "Contrast agent version: ${CONTRAST_VERSION}"
 
-      - name: Build all image variants with Docker Buildx Bake (for local testing))
+      - name: Build all image variants with Docker Buildx Bake
         id: bake
         uses: docker/bake-action@v6
         with:
@@ -172,7 +172,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: digests
+          name: digests-${{ env.PLATFORM_PAIR }}
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1
