@@ -131,7 +131,7 @@ jobs:
           #   CONTRAST_AGENT_VERSION=${{ github.event.inputs.contrast_agent_version || 'latest' }}
           # FROM ABOVE: 
                         # *.tags=${{ env.REGISTRY_IMAGE }}
-                        # *.output=type=image,push-by-digest=true,name-canonical=true
+                        # *.output=type=docker,push-by-digest=true,name-canonical=true
           
       - name: Run docker-compose tests
         run: | 
