@@ -120,38 +120,16 @@ jobs:
           load: true
           set: | 
             *.platform=${{ matrix.platform }}
-            *.output=type=image,push-by-digest=true,name-canonical=true,push=false
+      
+      - name: Inspect
+        run: |
+          docker image inspect ${{ env.REGISTRY_IMAGE }}:${{ fromJSON(steps.bake.outputs.metadata).image['docker-metadata-action'].tags['latest'] }}
+
           # set: |
           #   CONTRAST_AGENT_VERSION=${{ github.event.inputs.contrast_agent_version || 'latest' }}
           # FROM ABOVE: 
                         # *.tags=${{ env.REGISTRY_IMAGE }}
-      # -
-      #   name: Build no-agent variant
-      #   id: build
-      #   uses: docker/build-push-action@v5
-      #   with: 
-      #     context: .
-      #     platforms: linux/amd64, linux/arm64
-      #     push: false
-      #     load: true
-      #     cache-from: type=gha
-      #     cache-to: type=gha,mode=max
-      #     target: runtime
-      #     tags: |
-      #       netflicks:latest-no-agent
-      # -
-      #   name: Build image with Contrast agent
-      #   id: build-contrast
-      #   uses: docker/build-push-action@v5
-      #   with: 
-      #     context: .
-      #     platforms: linux/amd64, linux/arm64
-      #     push: false
-      #     load: true
-      #     cache-from: type=gha
-      #     target: runtime-with-contrast
-      #     tags: |
-      #       netflicks:latest-with-agent
+                        # *.output=type=image,push-by-digest=true,name-canonical=true
           
       - name: Run docker-compose tests
         run: | 
