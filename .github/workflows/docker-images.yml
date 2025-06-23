@@ -117,9 +117,10 @@ jobs:
           targets: |
             multiarch
           push: false
-          load: true
           set: | 
             *.platform=${{ matrix.platform }}
+            *.output=type=image,push-by-digest=true,name-canonical=true
+
       
       - name: Inspect
         run: |
