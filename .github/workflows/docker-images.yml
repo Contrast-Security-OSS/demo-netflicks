@@ -11,43 +11,93 @@ on:
       - main
   workflow_dispatch:
 
-jobs:
+env:
+  REGISTRY_IMAGE: contrastsecuritydemo/netflicks
 
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.platforms.outputs.matrix }}
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Create matrix
+        id: platforms
+        run: |
+          echo "matrix=$(docker buildx bake image-all --print | jq -cr '.target."image-all".platforms')" >>${GITHUB_OUTPUT}
+
+      - name: Show matrix
+        run: echo "${{ steps.platforms.outputs.matrix }}"
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY_IMAGE }}
+      
+      - name: Rename meta bake definition file
+        run: |
+          mv "${{ steps.meta.outputs.bake-file }}" "${{ runner.temp }}/bake-meta.json"
+
+      - name: Upload meta bake definition
+        uses: actions/upload-artifact@v4
+        with:
+          name: bake-meta
+          path: ${{ runner.temp }}/bake-meta.json
+          if-no-files-found: error
+          retention-days: 1
+      
   build:
     name: Build Multi-Stage Docker Images
     runs-on: ubuntu-latest
-    outputs:
-      image-digest: ${{ steps.build.outputs.digest }}
-      metadata: ${{ steps.meta.outputs.json }}
-      contrast_version: ${{ steps.versions.outputs.contrast_version }}
+    needs: 
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    # outputs:
+    #   image-digest: ${{ steps.build.outputs.digest }}
+    #   metadata: ${{ steps.meta.outputs.json }}
+    #   contrast_version: ${{ steps.versions.outputs.contrast_version }}
     steps:
-      -
-        name: Checkout branch
-        uses: actions/checkout@v4
-      - 
-        name: Set up Docker daemon for multi-platform builds
-        uses: docker/setup-docker-action@v4
+      - name: Prepare
+        run: |
+          platform=${{ matrix.platform }}
+          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
+      
+      - name: Download meta bake definition
+        uses: actions/download-artifact@v4
         with:
-          daemon-config: |
-            {
-              "debug": true,
-              "features": {
-                "containerd-snapshotter": true
-              }
-            }
-      -
-        name: Docker Setup QEMU
+          name: bake-meta
+          path: ${{ runner.temp }}
+      
+      # - 
+      #   name: Set up Docker daemon for multi-platform builds
+      #   uses: docker/setup-docker-action@v4
+      #   with:
+      #     daemon-config: |
+      #       {
+      #         "debug": true,
+      #         "features": {
+      #           "containerd-snapshotter": true
+      #         }
+      #       }
+      
+      - name: Docker Setup QEMU
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
-      -
-        name: Docker Setup Buildx
+      
+      - name: Docker Setup Buildx
         uses: docker/setup-buildx-action@v3
-        with: 
-          platforms: linux/amd64,linux/arm64
-      -
-        name: Build all image variants with Docker Buildx Bake
-        uses: docker/bake-action@v3
+        # with: 
+        #   platforms: linux/amd64,linux/arm64
+      
+      - name: Build all image variants with Docker Buildx Bake
+        uses: docker/bake-action@v6
         with:
           files: |
             docker-bake.hcl
@@ -58,6 +108,10 @@ jobs:
             tests-multiarch
           push: false
           load: true
+          set: | 
+            *.tags=${{ env.REGISTRY_IMAGE }}
+            *.platform=${{ matrix.platform }}
+            *.output=type=image,push-by-digest=true,name-canonical=true,push=false"
           # set: |
           #   CONTRAST_AGENT_VERSION=${{ github.event.inputs.contrast_agent_version || 'latest' }}
       # -
@@ -87,12 +141,12 @@ jobs:
       #     target: runtime-with-contrast
       #     tags: |
       #       netflicks:latest-with-agent
-      -
-        name: Run docker-compose tests
+
+      - name: Run docker-compose tests
         run: | 
           docker compose --profile tests up --abort-on-container-exit --exit-code-from tests 
-      -
-        name: Extract metadata
+
+      - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -103,8 +157,8 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
-      -
-        name: Get currently installed Contrast agent version
+
+      - name: Get currently installed Contrast agent version
         id: versions
         run: | 
           docker compose up web-dev -d
@@ -113,14 +167,14 @@ jobs:
           echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
           docker compose down
           echo "Contrast agent version: ${CONTRAST_VERSION}"
-      - 
-        name: Export digest
+
+      - name: Export digest
         run: |
           mkdir -p ${{ runner.temp }}/digests
           digest="${{ fromJSON(steps.bake.outputs.metadata).image['containerimage.digest'] }}"
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
-      - 
-        name: Upload digest
+      
+      - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
           name: digests
@@ -150,23 +204,34 @@ jobs:
           echo Getting the build metadata
           echo ${{ needs.build.outputs.contrast_version }}
 
+      - name: Download meta bake definition
+        uses: actions/download-artifact@v4
+        with:
+          name: bake-meta
+          path: ${{ runner.temp }}
+
       - name: Download digests
         uses: actions/download-artifact@v4
         with:
           path: ${{ runner.temp }}/digests
-          pattern: digests
+          pattern: digests-*
           merge-multiple: true
-      
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
-          docker buildx imagetools create contrastsecuritydemo/netflicks:latest \
-            $(printf 'contrastsecuritydemo/netflicks:latest@sha256:%s ' *)
+          docker buildx imagetools create $(jq -cr '.target."docker-metadata-action".tags | map(select(startswith("${{ env.REGISTRY_IMAGE }}")) | "-t " + .) | join(" ")' ${{ runner.temp }}/bake-meta.json) \
+            $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
 
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect contrastsecuritydemo/netflicks:latest
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:$(jq -r '.target."docker-metadata-action".args.DOCKER_META_VERSION' ${{ runner.temp }}/bake-meta.json)
 
+
+          
   # push:
   #   name: Push Images to Docker Hub
   #   if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
