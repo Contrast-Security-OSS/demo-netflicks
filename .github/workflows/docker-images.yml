@@ -98,6 +98,11 @@ jobs:
         # with: 
         #   platforms: linux/amd64,linux/arm64
       
+      - name: print the problem file
+        run: |
+          echo "bake-meta.json file: ${{ runner.temp }}/bake-meta.json"
+          cat "${{ runner.temp }}/bake-meta.json"
+
       - name: Build all image variants with Docker Buildx Bake
         uses: docker/bake-action@v6
         with:
