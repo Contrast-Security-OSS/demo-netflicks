@@ -116,10 +116,10 @@ jobs:
             cwd://${{ runner.temp }}/bake-meta.json
           targets: |
             multiarch
-          push: false
+          # push: false
           set: | 
             *.platform=${{ matrix.platform }}
-            *.output=type=docker,push-by-digest=true,name-canonical=true
+            *.output=type=docker,push-by-digest=true,name-canonical=true,push=true
 
       
       - name: Inspect
