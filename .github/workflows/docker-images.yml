@@ -27,7 +27,7 @@ jobs:
         id: platforms
         run: |
           echo "matrix=$(docker buildx bake runtime-multiarch --print | jq -cr '.target."runtime-multiarch".platforms')" >> ${GITHUB_OUTPUT}
-          echo "matrix=$(docker buildx bake runtime-contrast-multiarch --print | jq -cr '.target."runtime-contrast-multiarch".platforms')" >> ${GITHUB_OUTPUT}
+          echo "matrix=$(docker buildx bake runtime-with-contrast-multiarch --print | jq -cr '.target."runtime-with-contrast-multiarch".platforms')" >> ${GITHUB_OUTPUT}
           echo "matrix=$(docker buildx bake tests-multiarch --print | jq -cr '.target."tests-multiarch".platforms')" >> ${GITHUB_OUTPUT}
 
       - name: Show matrix
