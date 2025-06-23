@@ -123,7 +123,8 @@ jobs:
       
       - name: Inspect
         run: |
-          docker image inspect ${{ env.REGISTRY_IMAGE }}:${{ fromJSON(steps.bake.outputs.metadata).image['docker-metadata-action'].tags['latest'] }}
+          docker image inspect ${{ env.REGISTRY_IMAGE }}:latest
+          docker image inspect ${{ env.REGISTRY_IMAGE }}:latest-contrast
 
           # set: |
           #   CONTRAST_AGENT_VERSION=${{ github.event.inputs.contrast_agent_version || 'latest' }}
