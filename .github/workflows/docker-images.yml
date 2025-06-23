@@ -51,13 +51,6 @@ jobs:
           if-no-files-found: error
           retention-days: 1
       
-      - name: Upload docker-compose definition
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-compose
-          path: ${{ runner.temp }}/docker-compose.yml
-          if-no-files-found: error
-          retention-days: 1
       
   build:
     name: Build Multi-Stage Docker Images
@@ -157,12 +150,6 @@ jobs:
       #     target: runtime-with-contrast
       #     tags: |
       #       netflicks:latest-with-agent
-
-      - name: Download docker-compose definition
-        uses: actions/download-artifact@v4
-        with:
-          name: docker-compose
-          path: ${{ runner.temp }}
           
       - name: Run docker-compose tests
         run: | 
