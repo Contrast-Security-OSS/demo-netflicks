@@ -124,7 +124,6 @@ jobs:
           load: true
           set: | 
             *.platform=${{ matrix.platform }}
-            *.output=type=docker,push-by-digest=true,name-canonical=true,oci-mediatypes=true
  
       - name: Run docker-compose tests
         run: | 
@@ -152,24 +151,24 @@ jobs:
           docker compose down
           echo "Contrast agent version: ${CONTRAST_VERSION}"
 
-      # - name: Build all image variants with Docker Buildx Bake
-      #   id: bake
-      #   uses: docker/bake-action@v6
-      #   with:
-      #     files: |
-      #       docker-bake.hcl
-      #       cwd://${{ runner.temp }}/bake-meta.json
-      #     targets: |
-      #       multiarch
-      #     # push: false
-      #     set: | 
-      #       *.platform=${{ matrix.platform }}
-      #       *.output=type=image,push-by-digest=true,name-canonical=true,push=false
+      - name: Build all image variants with Docker Buildx Bake
+        id: bake
+        uses: docker/bake-action@v6
+        with:
+          files: |
+            docker-bake.hcl
+            cwd://${{ runner.temp }}/bake-meta.json
+          targets: |
+            multiarch
+          # push: false
+          set: | 
+            *.platform=${{ matrix.platform }}
+            *.output=type=image,push-by-digest=true,name-canonical=true,push=false
 
       - name: Export digest
         run: |
           mkdir -p ${{ runner.temp }}/digests
-          digest="${{ fromJSON(steps.bake-local.outputs.metadata).image['containerimage.digest'] }}"
+          digest="${{ fromJSON(steps.bake.outputs.metadata).image['containerimage.digest'] }}"
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
       
       - name: Upload digest
