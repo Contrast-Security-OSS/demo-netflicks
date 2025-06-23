@@ -118,11 +118,12 @@ jobs:
           push: false
           load: true
           set: | 
-            # *.tags=${{ env.REGISTRY_IMAGE }}
             *.platform=${{ matrix.platform }}
             *.output=type=image,push-by-digest=true,name-canonical=true,push=false
           # set: |
           #   CONTRAST_AGENT_VERSION=${{ github.event.inputs.contrast_agent_version || 'latest' }}
+          # FROM ABOVE: 
+                        # *.tags=${{ env.REGISTRY_IMAGE }}
       # -
       #   name: Build no-agent variant
       #   id: build
