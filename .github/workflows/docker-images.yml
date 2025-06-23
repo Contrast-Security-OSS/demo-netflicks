@@ -118,7 +118,7 @@ jobs:
           push: false
           load: true
           set: | 
-            *.tags=${{ env.REGISTRY_IMAGE }}
+            # *.tags=${{ env.REGISTRY_IMAGE }}
             *.platform=${{ matrix.platform }}
             *.output=type=image,push-by-digest=true,name-canonical=true,push=false
           # set: |
