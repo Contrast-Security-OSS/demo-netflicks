@@ -124,7 +124,7 @@ jobs:
           load: true
           set: | 
             *.platform=${{ matrix.platform }}
-            *.output=type=docker,push-by-digest=true,name-canonical=true,push=false
+            *.output=type=docker,push-by-digest=true,name-canonical=true,oci-mediatypes=true
  
       - name: Run docker-compose tests
         run: | 
