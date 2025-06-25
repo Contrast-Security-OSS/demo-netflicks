@@ -156,7 +156,6 @@ jobs:
           targets: |
             multiarch
           push: false
-          load: true
           set: | 
             *.platform=${{ matrix.platform }}
             *.output=type=image,push-by-digest=true,name-canonical=true
@@ -165,6 +164,7 @@ jobs:
         run: |
           mkdir -p ${{ runner.temp }}/digests
           digest="${{ fromJSON(steps.bake.outputs.metadata).image['containerimage.digest'] }}"
+          echo "digest=${digest}"
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
       
       - name: Upload digest
