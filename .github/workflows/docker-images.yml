@@ -155,13 +155,14 @@ jobs:
             cwd://${{ runner.temp }}/bake-meta.json
           targets: |
             multiarch
+          push: false
+          load: true
           set: | 
             *.platform=${{ matrix.platform }}
             *.output=type=image,push-by-digest=true,name-canonical=true
 
       - name: Export digest
         run: |
-          echo ${{ steps.bake.outputs.metadata }}
           mkdir -p ${{ runner.temp }}/digests
           digest="${{ fromJSON(steps.bake.outputs.metadata).image['containerimage.digest'] }}"
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
