@@ -165,7 +165,7 @@ jobs:
           echo "DIGEST METADATA catted out via file"
           touch metadata.json
           echo '${{ steps.bake.outputs.metadata }}' > metadata.json
-          cat metadata.json | jq -r '.image["containerimage.digest"]'
+          cat metadata.json | jq -r '.runtime["containerimage.digest"]'
           echo "---------------------"
           cat metadata.json 
           # echo "IMAGE METADATA"
