@@ -160,7 +160,7 @@ jobs:
           load: false
           set: | 
             *.platform=${{ matrix.platform }}
-            *.output=type=image,push-by-digest=true,name-canonical=true,push=false
+            *.output=type=image,push-by-digest=true,name-canonical=true,dest=${{ runner.temp }}/myimage.tar,push=false
 
       - name: Export digest
         run: |
@@ -184,9 +184,9 @@ jobs:
           echo "runtime_digest=${runtime_digest}"
           echo "contrast_digest=${contrast_digest}"
           echo "tests_digest=${tests_digest}"
-          touch "${{ runner.temp }}/digests/${runtime_digest#sha256:}"
-          touch "${{ runner.temp }}/digests/${contrast_digest#sha256:}"
-          touch "${{ runner.temp }}/digests/${tests_digest#sha256:}"
+          touch "${{ runner.temp }}/digests/runtime/${runtime_digest#sha256:}"
+          touch "${{ runner.temp }}/digests/contrast/${contrast_digest#sha256:}"
+          touch "${{ runner.temp }}/digests/tests/${tests_digest#sha256:}"
 
       - name: Upload digest
         uses: actions/upload-artifact@v4
@@ -237,8 +237,12 @@ jobs:
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
-          docker buildx imagetools create $(jq -cr '.target."docker-metadata-action".tags | map(select(startswith("${{ env.REGISTRY_IMAGE }}")) | "-t " + .) | join(" ")' ${{ runner.temp }}/bake-meta.json) \
-            $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
+          ls -la 
+          ls -la runtime
+          ls -la contrast
+          ls -la tests
+        # docker buildx imagetools create $(jq -cr '.target."docker-metadata-action".tags | map(select(startswith("${{ env.REGISTRY_IMAGE }}")) | "-t " + .) | join(" ")' ${{ runner.temp }}/bake-meta.json) \
+        #   $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
 
       - name: Inspect image
         run: |
