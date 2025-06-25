@@ -29,7 +29,7 @@ jobs:
           echo "matrix=$(docker buildx bake runtime-multiarch --print | jq -cr '.target."runtime-multiarch".platforms')" >> ${GITHUB_OUTPUT}
           echo "matrix=$(docker buildx bake runtime-with-contrast-multiarch --print | jq -cr '.target."runtime-with-contrast-multiarch".platforms')" >> ${GITHUB_OUTPUT}
           echo "matrix=$(docker buildx bake tests-multiarch --print | jq -cr '.target."tests-multiarch".platforms')" >> ${GITHUB_OUTPUT}
-          echo "${GITHUB_OUTPUT}"
+          echo ${GITHUB_OUTPUT}
 
       - name: Show matrix
         run: echo "${{ steps.platforms.outputs.matrix }}"
@@ -43,6 +43,7 @@ jobs:
       - name: Rename meta bake definition file
         run: |
           mv "${{ steps.meta.outputs.bake-file }}" "${{ runner.temp }}/bake-meta.json"
+          echo ${{ runner.temp }}/bake-meta.json
 
       - name: Upload meta bake definition
         uses: actions/upload-artifact@v4
@@ -177,10 +178,16 @@ jobs:
 
           
           mkdir -p ${{ runner.temp }}/digests
-          digest="${{ fromJSON(steps.bake.outputs.metadata).runtime['containerimage.digest'] }}"
-          echo "digest=${digest}"
-          touch "${{ runner.temp }}/digests/${digest#sha256:}"
-      
+          runtime_digest="${{ fromJSON(steps.bake.outputs.metadata).runtime-multiarch['containerimage.digest'] }}"
+          contrast_digest="${{ fromJSON(steps.bake.outputs.metadata).runtime-with-contrast-multiarch['containerimage.digest'] }}"
+          tests_digest="${{ fromJSON(steps.bake.outputs.metadata).tests-multiarch['containerimage.digest'] }}"
+          echo "runtime_digest=${runtime_digest}"
+          echo "contrast_digest=${contrast_digest}"
+          echo "tests_digest=${tests_digest}"
+          touch "${{ runner.temp }}/digests/${runtime_digest#sha256:}"
+          touch "${{ runner.temp }}/digests/${contrast_digest#sha256:}"
+          touch "${{ runner.temp }}/digests/${tests_digest#sha256:}"
+
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
