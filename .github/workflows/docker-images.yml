@@ -128,7 +128,9 @@ jobs:
 
       - name: Export docker images as tar files
         run: |
-          mkdir -p ${{ runner.temp }}/images/
+          mkdir -p ${{ runner.temp }}/images/runtime
+          mkdir -p ${{ runner.temp }}/images/contrast
+          mkdir -p ${{ runner.temp }}/images/tests
           docker save contrastsecuritydemo/netflicks:latest -o ${{ runner.temp }}/images/runtime/${{ env.PLATFORM_PAIR }}.tar
           docker save contrastsecuritydemo/netflicks:latest-contrast -o ${{ runner.temp }}/images/contrast/${{ env.PLATFORM_PAIR }}.tar
           docker save e2e-tests/netflicks:latest -o ${{ runner.temp }}/images/tests/${{ env.PLATFORM_PAIR }}.tar
@@ -273,9 +275,17 @@ jobs:
 
       - name: Load images
         run: |
-          docker load --input ${{ runner.temp }}/images/runtime/*.tar
-          docker load --input ${{ runner.temp }}/images/contrast/*.tar
-          docker load --input ${{ runner.temp }}/images/tests/*.tar
+          echo "Loading images"
+          for folder in ${{ runner.temp }}/images/*; do
+            for file in "$folder"/*.tar; do
+              echo "Loading $folder image: $file"
+              docker load --input ${{ runner.temp }}/$folder/$file
+            done
+          done
+      
+      - name: Check images are loaded
+        run: |
+          echo "Checking loaded images"
           docker image ls -a
 
       - name: Inspect image
