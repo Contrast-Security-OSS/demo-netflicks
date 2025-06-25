@@ -163,7 +163,6 @@ jobs:
       - name: Export digest
         run: |
           echo "DIGEST METADATA"
-          # echo '${{ fromJSON(steps.bake.outputs.digest) }}'
           echo "IMAGE METADATA"
           echo '${{ fromJSON(steps.bake.outputs.metadata).image }}'
           echo "FULL METADATA"
