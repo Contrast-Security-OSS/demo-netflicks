@@ -200,6 +200,7 @@ jobs:
 
       - name: Export docker images as tar files
         run: |
+          mkdir -p ${{ runner.temp }}/images
           docker save contrastsecuritydemo/netflicks:latest -o ${{ runner.temp }}/images/runtime.tar
           docker save contrastsecuritydemo/netflicks:latest-contrast -o ${{ runner.temp }}/images/contrast.tar
           docker save contrastsecuritydemo/netflicks:e2e-tests -o ${{ runner.temp }}/images/tests.tar
