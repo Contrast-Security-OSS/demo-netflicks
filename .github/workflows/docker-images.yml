@@ -162,11 +162,12 @@ jobs:
 
       - name: Export digest
         run: |
-          echo "DIGEST METADATA"
+          echo "DIGEST METADATA catted out via file"
           touch metadata.json
           echo '${{ steps.bake.outputs.metadata }}' > metadata.json
-          cat metadata.json
+          cat metadata.json | jq -r '.image["containerimage.digest"]'
           echo "---------------------"
+          cat metadata.json 
           # echo "IMAGE METADATA"
           # echo '${{ fromJSON(steps.bake.outputs.metadata).image }}'
           # echo "FULL METADATA"
