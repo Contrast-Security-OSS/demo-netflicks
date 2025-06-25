@@ -163,10 +163,14 @@ jobs:
       - name: Export digest
         run: |
           echo "DIGEST METADATA"
-          echo "IMAGE METADATA"
-          echo '${{ fromJSON(steps.bake.outputs.metadata).image }}'
-          echo "FULL METADATA"
-          echo '${{ fromJSON(steps.bake.outputs.metadata) }}'
+          touch metadata.json
+          echo '${{ steps.bake.outputs.metadata }}' > metadata.json
+          cat metadata.json
+          echo "---------------------"
+          # echo "IMAGE METADATA"
+          # echo '${{ fromJSON(steps.bake.outputs.metadata).image }}'
+          # echo "FULL METADATA"
+          # echo '${{ fromJSON(steps.bake.outputs.metadata) }}'
 
           
           mkdir -p ${{ runner.temp }}/digests
