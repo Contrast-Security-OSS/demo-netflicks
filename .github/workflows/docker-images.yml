@@ -198,6 +198,12 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+      - name: Upload image tar
+        uses: actions/upload-artifact@v4
+        with:
+          name: myimage-${{ env.PLATFORM_PAIR }}.tar
+          path: ${{ runner.temp }}/myimage.tar
+
   pre-merge:
     name: Prepare to merge
     runs-on: ubuntu-latest
