@@ -154,7 +154,7 @@ jobs:
             docker-bake.hcl
             cwd://${{ runner.temp }}/bake-meta.json
           targets: |
-            multiarch
+            runtime
           set: | 
             *.platform=${{ matrix.platform }}
             *.output=type=image,push-by-digest=true,name-canonical=true,push=true
