@@ -109,22 +109,37 @@ jobs:
 
       # Need to do two bake steps because load=true is not compatible with push-by-digest=true
       # https://github.com/moby/buildkit/issues/5556
-      # - name: Build all image variants with Docker Buildx Bake (for local testing)
-      #   id: bake-local
-      #   uses: docker/bake-action@v6
-      #   with:
-      #     files: |
-      #       docker-bake.hcl
-      #     targets: |
-      #       multiarch
-      #     push: false
-      #     load: true
-      #     set: | 
-      #       *.platform=${{ matrix.platform }}
+      - name: Build all image variants with Docker Buildx Bake (for local testing)
+        id: bake-local
+        uses: docker/bake-action@v6
+        with:
+          files: |
+            docker-bake.hcl
+          targets: |
+            multiarch
+          push: false
+          load: true
+          set: | 
+            *.platform=${{ matrix.platform }}
  
       # - name: Run docker-compose tests
       #   run: | 
       #     docker compose --profile tests up --abort-on-container-exit --exit-code-from tests 
+
+      - name: Export docker images as tar files
+        run: |
+          mkdir -p ${{ runner.temp }}/images/
+          docker save contrastsecuritydemo/netflicks:latest -o ${{ runner.temp }}/images/runtime.tar
+          docker save contrastsecuritydemo/netflicks:latest-contrast -o ${{ runner.temp }}/images/contrast.tar
+          docker save e2e-tests/netflicks:latest -o ${{ runner.temp }}/images/tests.tar
+
+      - name: Upload image tar
+        uses: actions/upload-artifact@v4
+        with:
+          name: images-${{ env.PLATFORM_PAIR }}
+          path: ${{ runner.temp }}/images/*
+          if-no-files-found: error
+          retention-days: 1
 
       # - name: Extract metadata
       #   id: meta
@@ -160,7 +175,7 @@ jobs:
           load: false
           set: | 
             *.platform=${{ matrix.platform }}
-            *.output=type=image,push-by-digest=true,name-canonical=true,dest=${{ runner.temp }}/myimage.tar,push=false
+            *.output=type=image,push-by-digest=true,name-canonical=true,push=false
 
       - name: Export digest
         run: |
@@ -198,20 +213,7 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-      - name: Export docker images as tar files
-        run: |
-          mkdir -p ${{ runner.temp }}/images/
-          docker save contrastsecuritydemo/netflicks:latest -o ${{ runner.temp }}/images/runtime.tar
-          docker save contrastsecuritydemo/netflicks:latest-contrast -o ${{ runner.temp }}/images/contrast.tar
-          docker save e2e-tests/netflicks:latest -o ${{ runner.temp }}/images/tests.tar
 
-      - name: Upload image tar
-        uses: actions/upload-artifact@v4
-        with:
-          name: images-${{ env.PLATFORM_PAIR }}
-          path: ${{ runner.temp }}/images/*
-          if-no-files-found: error
-          retention-days: 1
 
   pre-merge:
     name: Prepare to merge
