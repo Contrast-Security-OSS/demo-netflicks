@@ -165,6 +165,10 @@ jobs:
           mkdir -p ${{ runner.temp }}/digests
           digest="${{ fromJSON(steps.bake.outputs.metadata).image['containerimage.digest'] }}"
           echo "digest=${digest}"
+          echo "FULL METADATA"
+          echo "${{ fromJSON(steps.bake.outputs.metadata) }}"
+          echo "IMAGE METADATA"
+          echo "${{ fromJSON(steps.bake.outputs.metadata).image }}"
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
       
       - name: Upload digest
