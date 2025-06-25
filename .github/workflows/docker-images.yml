@@ -198,11 +198,17 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+      - name: Export docker images as tar files
+        run: |
+          docker save contrastsecuritydemo/netflicks:latest -o ${{ runner.temp }}/images/runtime.tar
+          docker save contrastsecuritydemo/netflicks:latest-contrast -o ${{ runner.temp }}/images/contrast.tar
+          docker save contrastsecuritydemo/netflicks:e2e-tests -o ${{ runner.temp }}/images/tests.tar
+
       - name: Upload image tar
         uses: actions/upload-artifact@v4
         with:
-          name: myimage-${{ env.PLATFORM_PAIR }}.tar
-          path: ${{ runner.temp }}/myimage.tar
+          name: images-${{ env.PLATFORM_PAIR }}
+          path: ${{ runner.temp }}/images/*
 
   pre-merge:
     name: Prepare to merge
