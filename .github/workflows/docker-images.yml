@@ -157,7 +157,7 @@ jobs:
             runtime
           set: | 
             *.platform=${{ matrix.platform }}
-            *.output=type=image,push-by-digest=true,name-canonical=true,push=true
+            *.output=type=image,push-by-digest=true,name-canonical=true,push=false
 
       - name: Export digest
         run: |
