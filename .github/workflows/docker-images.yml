@@ -99,10 +99,6 @@ jobs:
       
       - name: Docker Setup Buildx
         uses: docker/setup-buildx-action@v3
-        # with: 
-        #   driver: docker
-        # with: 
-        #   platforms: linux/amd64,linux/arm64
       
       - name: print the problem file
         run: |
@@ -166,6 +162,7 @@ jobs:
 
       - name: Export digest
         run: |
+          echo ${{ fromJSON(steps.bake.outputs.metadata) }}
           mkdir -p ${{ runner.temp }}/digests
           digest="${{ fromJSON(steps.bake.outputs.metadata).image['containerimage.digest'] }}"
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
