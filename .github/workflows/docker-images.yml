@@ -155,10 +155,9 @@ jobs:
             cwd://${{ runner.temp }}/bake-meta.json
           targets: |
             multiarch
-          push: false
           set: | 
             *.platform=${{ matrix.platform }}
-            *.output=type=image,push-by-digest=true,name-canonical=true
+            *.output=type=image,push-by-digest=true,name-canonical=true,push=true
 
       - name: Export digest
         run: |
