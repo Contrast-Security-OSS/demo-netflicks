@@ -29,6 +29,7 @@ jobs:
           echo "matrix=$(docker buildx bake runtime-multiarch --print | jq -cr '.target."runtime-multiarch".platforms')" >> ${GITHUB_OUTPUT}
           echo "matrix=$(docker buildx bake runtime-with-contrast-multiarch --print | jq -cr '.target."runtime-with-contrast-multiarch".platforms')" >> ${GITHUB_OUTPUT}
           echo "matrix=$(docker buildx bake tests-multiarch --print | jq -cr '.target."tests-multiarch".platforms')" >> ${GITHUB_OUTPUT}
+          echo "${GITHUB_OUTPUT}"
 
       - name: Show matrix
         run: echo "${{ steps.platforms.outputs.matrix }}"
@@ -167,11 +168,12 @@ jobs:
           echo '${{ steps.bake.outputs.metadata }}' > metadata.json
           cat metadata.json | jq -r '.runtime["containerimage.digest"]'
           echo "---------------------"
-          cat metadata.json 
-          # echo "IMAGE METADATA"
-          # echo '${{ fromJSON(steps.bake.outputs.metadata).image }}'
-          # echo "FULL METADATA"
-          # echo '${{ fromJSON(steps.bake.outputs.metadata) }}'
+          cat metadata.json
+          echo "FULL METADATA"
+          echo '${{ fromJSON(steps.bake.outputs.metadata) }}'
+          echo "---------------------"
+          echo "RUNTIME METADATA"
+          echo '${{ fromJSON(steps.bake.outputs.metadata).runtime }}'
 
           
           mkdir -p ${{ runner.temp }}/digests
