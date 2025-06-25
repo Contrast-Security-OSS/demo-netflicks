@@ -177,7 +177,9 @@ jobs:
           echo '${{ fromJSON(steps.bake.outputs.metadata).runtime }}'
 
           
-          mkdir -p ${{ runner.temp }}/digests
+          mkdir -p ${{ runner.temp }}/digests/runtime
+          mkdir -p ${{ runner.temp }}/digests/contrast
+          mkdir -p ${{ runner.temp }}/digests/tests
           runtime_digest="${{ fromJSON(steps.bake.outputs.metadata).runtime-multiarch['containerimage.digest'] }}"
           contrast_digest="${{ fromJSON(steps.bake.outputs.metadata).runtime-with-contrast-multiarch['containerimage.digest'] }}"
           tests_digest="${{ fromJSON(steps.bake.outputs.metadata).tests-multiarch['containerimage.digest'] }}"
