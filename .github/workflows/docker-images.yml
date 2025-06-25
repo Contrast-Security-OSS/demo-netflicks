@@ -278,8 +278,8 @@ jobs:
           echo "Loading images"
           for folder in ${{ runner.temp }}/images/*; do
             for file in "$folder"/*.tar; do
-              echo "Loading $folder image: $file"
-              docker load --input ${{ runner.temp }}/$folder/$file
+              echo "Loading $file"
+              docker load --input $file
             done
           done
       
