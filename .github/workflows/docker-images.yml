@@ -155,7 +155,7 @@ jobs:
             docker-bake.hcl
             cwd://${{ runner.temp }}/bake-meta.json
           targets: |
-            runtime
+            multiarch
           load: false
           set: | 
             *.platform=${{ matrix.platform }}
