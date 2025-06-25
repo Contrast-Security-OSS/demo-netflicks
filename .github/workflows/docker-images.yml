@@ -175,7 +175,7 @@ jobs:
 
           
           mkdir -p ${{ runner.temp }}/digests
-          digest="${{ fromJSON(steps.bake.outputs.metadata).image['containerimage.digest'] }}"
+          digest="${{ fromJSON(steps.bake.outputs.metadata).runtime['containerimage.digest'] }}"
           echo "digest=${digest}"
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
       
