@@ -290,7 +290,10 @@ jobs:
 
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:$(jq -r '.target."docker-metadata-action".args.DOCKER_META_VERSION' ${{ runner.temp }}/bake-meta.json)
+          docker buildx imagetools inspect contrastsecuritydemo/netflicks:latest
+          docker buildx imagetools inspect contrastsecuritydemo/netflicks:latest-contrast
+          docker buildx imagetools inspect e2e-tests/netflicks:latest
+        # docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:$(jq -r '.target."docker-metadata-action".args.DOCKER_META_VERSION' ${{ runner.temp }}/bake-meta.json)
 
 
 
