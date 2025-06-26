@@ -1,14 +1,14 @@
 name: Docker Image CI
 
 on:
-  # push:
-  #   branches: 
-  #     - main
-  #   tags: 
-  #     - v*
-  # pull_request:
-  #   branches: 
-  #     - main
+  push:
+    branches: 
+      - main
+    tags: 
+      - v*
+  pull_request:
+    branches: 
+      - main
   workflow_dispatch:
 
 env:
@@ -59,7 +59,7 @@ jobs:
           files: |
             docker-bake.hcl
           targets: |
-            runtime-multiarch
+            multiarch
           push: false
           load: true
  
