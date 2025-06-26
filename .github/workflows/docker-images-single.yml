@@ -15,7 +15,29 @@ env:
   REGISTRY_IMAGE: contrastsecuritydemo/netflicks
 
 jobs:
-      
+  prepare:
+    name: Prepare for multi-stage builds
+    runs-on: ubuntu-latest
+    steps:
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY_IMAGE }}
+
+      - name: Rename meta bake definition file
+        run: |
+          mv "${{ steps.meta.outputs.bake-file }}" "${{ runner.temp }}/bake-meta.json"
+          echo ${{ runner.temp }}/bake-meta.json
+
+      - name: Upload meta bake definition
+        uses: actions/upload-artifact@v4
+        with:
+          name: bake-meta
+          path: ${{ runner.temp }}/bake-meta.json
+          if-no-files-found: error
+          retention-days: 1
+       
   build:
     name: Build Multi-Stage Docker Images
     runs-on: ubuntu-latest
