@@ -62,11 +62,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: ${{ fromJson(needs.prepare.outputs.matrix) }}
+        # platform: ${{ fromJson(needs.prepare.outputs.matrix) }}
         include:
-          - platform: amd64
+          - platform: linux/amd64
             runner: ubuntu-latest
-          - platform: arm64
+          - platform: linux/arm64
             runner: macos-latest
     # outputs:
     #   image-digest: ${{ steps.build.outputs.digest }}
