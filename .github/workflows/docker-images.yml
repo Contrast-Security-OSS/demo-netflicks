@@ -56,23 +56,30 @@ jobs:
       
   build:
     name: Build Multi-Stage Docker Images
-    runs-on: ubuntu-latest
-    needs: 
-      - prepare
     strategy:
       fail-fast: false
       matrix:
-        # platform: ${{ fromJson(needs.prepare.outputs.matrix) }}
+        platform: ${{ fromJson(needs.prepare.outputs.matrix) }}
         include:
           - platform: linux/amd64
             runner: ubuntu-latest
           - platform: linux/arm64
             runner: macos-latest
+    runs-on: ${{ matrix.runner }}
+    needs: 
+      - prepare
+    
     # outputs:
     #   image-digest: ${{ steps.build.outputs.digest }}
     #   metadata: ${{ steps.meta.outputs.json }}
     #   contrast_version: ${{ steps.versions.outputs.contrast_version }}
     steps:
+      - name: echo
+        run: |
+          echo "matrix.platform = ${{ matrix.platform}}"
+          echo "matrix.runner = ${{ matrix.runner}}"
+          echo "matrix.platform.runner = ${{ matrix.platform.runner}}"
+
       - name: Checkout branch
         uses: actions/checkout@v4
 
