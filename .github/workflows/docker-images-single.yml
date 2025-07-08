@@ -100,7 +100,7 @@ jobs:
           push: false
           load: true
           set: |
-            \*.platform=linux/{arm64,amd64}
+            =\*.platform=linux/{arm64,amd64}
  
       - name: Run docker-compose tests
         run: | 
