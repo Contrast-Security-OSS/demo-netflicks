@@ -89,7 +89,7 @@ jobs:
           images: |
             - contrastsecuritydemo/netflicks
           flavor: |
-            {{ matrix.image.name}}
+            ${{ matrix.image.name}}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -106,7 +106,7 @@ jobs:
           files: |
             docker-bake.hcl
           targets: |
-            {{ matrix.image.name }}
+            ${{ matrix.image.name }}
           push: false
           load: true
           set: |
