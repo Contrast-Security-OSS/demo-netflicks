@@ -23,38 +23,20 @@ jobs:
   prepare:
     name: Prepare for multi-stage builds
     runs-on: ubuntu-latest
+    outputs:
+      contrast_version: ${{ steps.versions.outputs.contrast_version }}
     steps:
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: 
-            ${{ env.REGISTRY_IMAGE }}
-            contrast/contrast-dotnet-agent:${{ github.event.inputs.contrast_agent_version || 'latest' }}
-
-      - name: Rename meta bake definition file
-        run: |
-          mv "${{ steps.meta.outputs.bake-file }}" "${{ runner.temp }}/bake-meta.json"
-          echo ${{ runner.temp }}/bake-meta.json
-
-      - name: Upload meta bake definition
-        uses: actions/upload-artifact@v4
-        with:
-          name: bake-meta
-          path: ${{ runner.temp }}/bake-meta.json
-          if-no-files-found: error
-          retention-days: 1
-
-      - name: Get the Contrast Agent Image
+      - name: Check latest Contrast agent version
         id: versions
         run: |
           docker pull contrast/contrast-dotnet-agent:${{ github.event.inputs.contrast_agent_version || 'latest' }}
           CONTRAST_VERSION=$(docker image inspect contrast/agent-dotnet-core:latest --format '{{ index .Config.Labels "org.opencontainers.image.version" }}')
           echo "Contrast agent version: ${CONTRAST_VERSION}"
           echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
+
        
   build:
-    name: Build Multi-Stage Docker Images
+    name: Build Docker Images
     needs: 
       - prepare
     runs-on: ubuntu-latest
@@ -68,12 +50,6 @@ jobs:
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
-      
-      - name: Download meta bake definition
-        uses: actions/download-artifact@v4
-        with:
-          name: bake-meta
-          path: ${{ runner.temp }}
       
       - name: Set up Docker daemon for multi-platform builds
         uses: docker/setup-docker-action@v4
@@ -95,7 +71,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Extract metadata
-        id: meta
+        id: docker-meta
         uses: docker/metadata-action@v5
         with:
           images: |
@@ -107,11 +83,9 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}.{{patch}},value=${{ steps.versions.outputs.contrast_version}}
+            type=semver,pattern={{major}}.{{minor}}.{{patch}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }}
             type=raw,value=latest,enable={{is_default_branch}}
 
-      # Need to do two bake steps because load=true is not compatible with push-by-digest=true
-      # https://github.com/moby/buildkit/issues/5556
       - name: Build all Docker images for this PR
         id: bake-pr
         uses: docker/bake-action@v6
