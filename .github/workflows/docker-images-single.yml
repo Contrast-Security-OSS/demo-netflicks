@@ -28,7 +28,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY_IMAGE }}
+          images: 
+            ${{ env.REGISTRY_IMAGE }}
+            contrast/contrast-dotnet-agent:${{ github.event.inputs.contrast_agent_version || 'latest' }}
 
       - name: Rename meta bake definition file
         run: |
@@ -42,6 +44,14 @@ jobs:
           path: ${{ runner.temp }}/bake-meta.json
           if-no-files-found: error
           retention-days: 1
+
+      - name: Get the Contrast Agent Image
+        id: versions
+        run: |
+          docker pull contrast/contrast-dotnet-agent:${{ github.event.inputs.contrast_agent_version || 'latest' }}
+          CONTRAST_VERSION=$(docker image inspect contrast/agent-dotnet-core:latest --format '{{ index .Config.Labels "org.opencontainers.image.version" }}')
+          echo "Contrast agent version: ${CONTRAST_VERSION}"
+          echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
        
   build:
     name: Build Multi-Stage Docker Images
@@ -83,14 +93,6 @@ jobs:
       
       - name: Docker Setup Buildx
         uses: docker/setup-buildx-action@v3
-
-      - name: Get the Contrast Agent Image
-        id: versions
-        run: |
-          docker pull contrastsecurity/contrast-dotnet-agent:${{ github.event.inputs.contrast_agent_version || 'latest' }}
-          CONTRAST_VERSION=$(docker image inspect contrast/agent-dotnet-core:latest --format '{{ index .Config.Labels "org.opencontainers.image.version" }}')
-          echo "Contrast agent version: ${CONTRAST_VERSION}"
-          echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Extract metadata
         id: meta
