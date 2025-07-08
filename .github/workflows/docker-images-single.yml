@@ -45,6 +45,8 @@ jobs:
        
   build:
     name: Build Multi-Stage Docker Images
+    needs: 
+      - prepare
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -89,7 +91,8 @@ jobs:
           images: |
             - contrastsecuritydemo/netflicks
           flavor: |
-            ${{ matrix.image.name}}
+            latest=true
+            suffix=${{ matrix.image.name == 'runtime-with-contrast' && '-contrast' || null }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
