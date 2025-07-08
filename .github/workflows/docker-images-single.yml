@@ -85,6 +85,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Get the Contrast Agent Image
+        id: versions
         run: |
           docker pull contrastsecurity/contrast-dotnet-agent:${{ github.event.inputs.contrast_agent_version || 'latest' }}
           docker image inspect contrastsecurity/contrast-dotnet-agent:${{ github.event.inputs.contrast_agent_version || 'latest' }}
