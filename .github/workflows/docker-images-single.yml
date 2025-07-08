@@ -84,6 +84,21 @@ jobs:
       - name: Docker Setup Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Get the Contrast Agent Image
+        run: |
+          docker pull contrastsecurity/contrast-dotnet-agent:${{ github.event.inputs.contrast_agent_version || 'latest' }}
+          docker image inspect contrastsecurity/contrast-dotnet-agent:${{ github.event.inputs.contrast_agent_version || 'latest' }}
+
+      # - name: Get currently installed Contrast agent version
+      #   id: versions
+      #   run: | 
+      #     docker compose up web-dev -d
+      #     docker compose cp web-dev:/opt/contrast/image-manifest.json image-manifest.json
+      #     CONTRAST_VERSION=$(cat image-manifest.json | jq -r '.version')
+      #     echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
+      #     docker compose down
+      #     echo "Contrast agent version: ${CONTRAST_VERSION}"
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -91,13 +106,13 @@ jobs:
           images: |
             - contrastsecuritydemo/netflicks
           flavor: |
-            latest=true
+            latest=false
             suffix=${{ matrix.image.name == 'runtime-with-contrast' && '-contrast' || null }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}.{{minor}}.{{patch}},value=${{ versions.contrast_version}}
             type=raw,value=latest,enable={{is_default_branch}}
 
       # Need to do two bake steps because load=true is not compatible with push-by-digest=true
@@ -118,17 +133,7 @@ jobs:
  
       # - name: Run docker-compose tests
       #   run: | 
-      #     docker compose --profile tests up --abort-on-container-exit --exit-code-from tests 
-
-      # - name: Get currently installed Contrast agent version
-      #   id: versions
-      #   run: | 
-      #     docker compose up web-dev -d
-      #     docker compose cp web-dev:/opt/contrast/image-manifest.json image-manifest.json
-      #     CONTRAST_VERSION=$(cat image-manifest.json | jq -r '.version')
-      #     echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
-      #     docker compose down
-      #     echo "Contrast agent version: ${CONTRAST_VERSION}"
+      #     docker compose --profile tests up --abort-on-container-exit --exit-code-from tests
 
       - name: Inspect the created images
         run: | 
