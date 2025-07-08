@@ -90,7 +90,7 @@ jobs:
             - ghcr.io/${{ github.repository }}
           flavor: |
             latest=false
-          labels: |
+          annotations: |
             org.opencontainers.image.description=A deliberately vulnerable .NET Core Application for Contrast Security demos
             org.opencontainers.image.vendor=Contrast Security
           tags: |
@@ -98,11 +98,7 @@ jobs:
             type=ref,event=branch,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
             type=ref,event=pr,suffix=-${{ matrix.image.name }}
             type=ref,event=pr,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
-            type=semver,pattern={{version}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
-            type=semver,pattern={{major}}.{{minor}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
-            type=semver,pattern={{major}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
-            type=raw,value=${{ matrix.image.name == 'runtime-with-contrast' && 'latest-contrast' || 'latest' }},enable={{is_default_branch}}
-
+            
       - name: Build all Docker images for this PR
         id: bake-pr
         uses: docker/bake-action@v6
@@ -112,8 +108,7 @@ jobs:
             cwd://${{ steps.docker-meta.outputs.bake-file}}
           targets: |
             ${{ matrix.image.name }}
-          push: false
-          load: true
+          push: true
           set: |
             *.platform=linux/amd64
             *.platform=linux/arm64
