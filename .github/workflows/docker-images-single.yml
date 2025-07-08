@@ -29,7 +29,7 @@ jobs:
       - name: Check latest Contrast agent version
         id: versions
         run: |
-          docker pull contrast/contrast-dotnet-agent:${{ github.event.inputs.contrast_agent_version || 'latest' }}
+          docker pull contrast/contrast-dotnet-core:${{ github.event.inputs.contrast_agent_version || 'latest' }}
           CONTRAST_VERSION=$(docker image inspect contrast/agent-dotnet-core:latest --format '{{ index .Config.Labels "org.opencontainers.image.version" }}')
           echo "Contrast agent version: ${CONTRAST_VERSION}"
           echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
