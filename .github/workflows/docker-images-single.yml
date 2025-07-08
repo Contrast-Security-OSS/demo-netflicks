@@ -88,18 +88,9 @@ jobs:
         id: versions
         run: |
           docker pull contrastsecurity/contrast-dotnet-agent:${{ github.event.inputs.contrast_agent_version || 'latest' }}
-          docker image inspect contrastsecurity/contrast-dotnet-agent:${{ github.event.inputs.contrast_agent_version || 'latest' }}
-
-      # - name: Get currently installed Contrast agent version
-      #   id: versions
-      #   run: | 
-      #     docker compose up web-dev -d
-      #     docker compose cp web-dev:/opt/contrast/image-manifest.json image-manifest.json
-          # CONTRAST_VERSION=$(cat image-manifest.json | jq -r '.version')
-          CONTRAST_VERSION=1.1.1
+          CONTRAST_VERSION=$(docker image inspect contrast/agent-dotnet-core:latest --format '{{ index .Config.Labels "org.opencontainers.image.version" }}')
+          echo "Contrast agent version: ${CONTRAST_VERSION}"
           echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
-      #     docker compose down
-      #     echo "Contrast agent version: ${CONTRAST_VERSION}"
 
       - name: Extract metadata
         id: meta
