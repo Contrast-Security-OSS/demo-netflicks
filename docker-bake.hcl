@@ -8,11 +8,10 @@ group "default" {
     targets = ["runtime", "runtime-with-contrast", "tests"]
 }
 
-group "multiarch" {
-    targets = ["runtime-multiarch", "runtime-with-contrast-multiarch", "tests-multiarch"]
-}
+target "docker-metadata-action" {}
 
 target "runtime" {
+    inherits = ["docker-metadata-action"]
     context = "."
     dockerfile = "Dockerfile"
     target = "runtime"
@@ -22,44 +21,24 @@ target "runtime" {
     ]
 }
 
-target "runtime-multiarch" {
-    inherits = ["runtime"]
-    platforms = [
-        "linux/amd64",
-        "linux/arm64"
-    ]
-}
-
 target "runtime-with-contrast" {
+    inherits = ["docker-metadata-action"]
     context = "."
     dockerfile = "Dockerfile"
     target = "runtime-with-contrast"
     args = {
         CONTRAST_AGENT_VERSION = CONTRAST_AGENT_VERSION
     }
-    tags = ["contrastsecuritydemo/netflicks:latest-contrast"]
-}
-
-target "runtime-with-contrast-multiarch" {
-    inherits = ["runtime-with-contrast"]
-    platforms = [
-        "linux/amd64",
-        "linux/arm64"
+    tags = [
+        "contrastsecuritydemo/netflicks:latest-contrast"
     ]
 }
 
 target "tests" {
+    inherits = ["docker-metadata-action"]
     context = "./tests"
     dockerfile = "Dockerfile"
     tags = [
-        "e2e-tests/netflicks:latest"
-    ]
-}
-
-target "tests-multiarch" {
-    inherits = ["tests"]
-    platforms = [
-        "linux/amd64",
-        "linux/arm64"
+        "contrastsecuritydemo/netflicks:e2e-tests"
     ]
 }
