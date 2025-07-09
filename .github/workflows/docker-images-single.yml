@@ -87,7 +87,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            - ghcr.io/${{ github.repository }}
+            ghcr.io/${{ github.repository }}
           flavor: |
             latest=false
           annotations: |
@@ -112,6 +112,7 @@ jobs:
           set: |
             *.platform=linux/amd64
             *.platform=linux/arm64
+            *.tags=${{ steps.docker-meta.outputs.tags }}
  
       # - name: Run docker-compose tests
       #   run: | 

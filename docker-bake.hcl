@@ -16,6 +16,9 @@ target "runtime" {
     dockerfile = "Dockerfile"
     target = "runtime"
     no-cache = true
+    tags = [
+        "contrastsecuritydemo/netflicks:latest"
+    ]
 }
 
 target "runtime-with-contrast" {
@@ -26,10 +29,16 @@ target "runtime-with-contrast" {
     args = {
         CONTRAST_AGENT_VERSION = CONTRAST_AGENT_VERSION
     }
+    tags = [
+        "contrastsecuritydemo/netflicks:latest-contrast"
+    ]
 }
 
 target "tests" {
     inherits = ["docker-metadata-action"]
     context = "./tests"
     dockerfile = "Dockerfile"
+    tags = [
+        "contrastsecuritydemo/netflicks:e2e-tests"
+    ]
 }
