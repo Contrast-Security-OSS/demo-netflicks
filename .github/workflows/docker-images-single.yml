@@ -126,8 +126,15 @@ jobs:
           echo 'outputs.metadata.tests.containerimage.digest:'
           echo '${{ fromJSON(steps.bake-pr.outputs.metadata).tests['containerimage.digest'] }}'
           echo '---'
-          echo 'outputs.metadata.digest: ${{ steps.bake-pr.outputs.metadata.digest }}'
-          
+          echo 'outputs.metadata.tests.image.name:'
+          echo '${{ fromJSON(steps.bake-pr.outputs.metadata).tests['image.name'] }}'
+
+          $image_name = '${{ fromJSON(steps.bake-pr.outputs.metadata)[matrix.image.name]['image.name'] }}'
+          $image_digest = '${{ fromJSON(steps.bake-pr.outputs.metadata)[matrix.image.name]['containerimage.digest'] }}'
+
+          echo "Image Name: $image_name"
+          echo "Image Digest: $image_digest"
+
 
       # if [ -z ${{ matrix.image.name }} == 'runtime_with_contrast' ]; then 
       #   staging_image_contrast=${{ fromJSON(steps.bake-pr.outputs.metadata).runtime-with-contrast['image.name'] }}
