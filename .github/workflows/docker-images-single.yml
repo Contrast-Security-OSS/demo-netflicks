@@ -121,8 +121,8 @@ jobs:
 
       - name: Inspect the created images
         run: | 
-          $staging_image_contrast=$(${{ matrix.image.name == 'runtime_with_contrast' && fromJSON(steps.bake-pr.outputs.metadata).runtime-with-contrast['image.name'] || null }})
-          $staging_image_test=$(${{ matrix.image.name == 'tests' && fromJSON(steps.bake-pr.outputs.metadata).tests['image.name'] || null }})
+          $staging_image_contrast=$(${{ matrix.image.name == 'runtime_with_contrast' && fromJSON(steps.bake-pr.outputs.metadata).runtime-with-contrast['image.name'] || '' }})
+          $staging_image_test=$(${{ matrix.image.name == 'tests' && fromJSON(steps.bake-pr.outputs.metadata).tests['image.name'] || '' }})
 
           if [ -z $staging_image_contrast ]; then 
             echo "Staging Contrast image: $staging_image_contrast";
