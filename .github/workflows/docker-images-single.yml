@@ -120,16 +120,16 @@ jobs:
       #     docker compose --profile tests up --abort-on-container-exit --exit-code-from tests
 
       - name: Inspect the created images
-        run: | 
-          $staging_image_contrast=${{ matrix.image.name == 'runtime_with_contrast' && fromJSON(steps.bake-pr.outputs.metadata).runtime-with-contrast['image.name'] || '' }}
-          $staging_image_test=${{ matrix.image.name == 'tests' && fromJSON(steps.bake-pr.outputs.metadata).tests['image.name'] || '' }}
+        run: |
 
-          if [ -z $staging_image_contrast ]; then 
+          if [ -z ${{ matrix.image.name }} == 'runtime_with_contrast' ]; then 
+            staging_image_contrast=${{ fromJSON(steps.bake-pr.outputs.metadata).runtime-with-contrast['image.name'] }}
             echo "Staging Contrast image: $staging_image_contrast";
             echo staging_image_contrast=$staging_image_contrast >> $GITHUB_ENV;
           fi
 
-          if [ -z $staging_image_test ]; then 
+          if [ -z ${{ matrix.image.name }} == 'tests' ]; then 
+            staging_image_test=${{ fromJSON(steps.bake-pr.outputs.metadata).tests['image.name'] }}
             echo "Staging Test image: $staging_image_test";
             echo staging_image_test=$staging_image_test >> $GITHUB_ENV;
           fi
