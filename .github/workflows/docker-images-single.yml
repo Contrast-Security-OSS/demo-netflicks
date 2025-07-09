@@ -34,7 +34,9 @@ jobs:
           echo "Contrast agent version: ${CONTRAST_VERSION}"
           echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
 
-       
+  #TODO: Add a job to build the base image first
+  #TODO: Then share the base image with other jobs via cache
+
   build:
     name: Build Docker Images
     needs: 
@@ -119,8 +121,19 @@ jobs:
 
       - name: Inspect the created images
         run: | 
-          docker image ls -a 
-        
+          $staging_image_contrast=${{ matrix.image.name == 'runtime_with_contrast' && steps.bake-pr.outputs.metadata.runtime-with-contrast.image.name || null }}
+          $staging_image_test=${{ matrix.image.name == 'tests' && steps.bake-pr.outputs.metadata.tests.image.name || null }}
+
+          if $staging_image_contrast; then 
+            echo "Staging Contrast image: $staging_image_contrast"
+            echo staging_image_contrast=$staging_image_contrast >> $GITHUB_ENV
+          fi
+
+          if $staging_image_test; then 
+            echo "Staging Test image: $staging_image_test"
+            echo staging_image_test=$staging_image_test >> $GITHUB_ENV
+          fi
+
       # docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.tags }}
 
       # - name: Login to Docker Hub

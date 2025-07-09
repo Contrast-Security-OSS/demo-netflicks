@@ -1,0 +1,14 @@
+
+services:
+
+  # Development environment for Contrast Assess demos
+  web-dev:
+    image: $staging_image_contrast
+
+  web-prod:
+    image: $staging_image_contrast
+
+  # Testing service
+  tests:
+    build:
+      image: $staging_image_tests
