@@ -121,18 +121,25 @@ jobs:
 
       - name: Inspect the created images
         run: |
+          echo "Inspecting the created images..."
+          echo "Matrix.Image.Name: ${{ matrix.image.name }}"
+          echo 'outputs.metadata.tests.containerimage.digest:'
+          echo '${{ fromJSON(steps.bake-pr.outputs.metadata).tests['containerimage.digest'] }}'
+          echo '---'
+          echo 'outputs.metadata.digest: ${{ steps.bake-pr.outputs.metadata.digest }}'
+          
 
-          if [ -z ${{ matrix.image.name }} == 'runtime_with_contrast' ]; then 
-            staging_image_contrast=${{ fromJSON(steps.bake-pr.outputs.metadata).runtime-with-contrast['image.name'] }}
-            echo "Staging Contrast image: $staging_image_contrast";
-            echo staging_image_contrast=$staging_image_contrast >> $GITHUB_ENV;
-          fi
+      # if [ -z ${{ matrix.image.name }} == 'runtime_with_contrast' ]; then 
+      #   staging_image_contrast=${{ fromJSON(steps.bake-pr.outputs.metadata).runtime-with-contrast['image.name'] }}
+      #   echo "Staging Contrast image: $staging_image_contrast";
+      #   echo staging_image_contrast=$staging_image_contrast >> $GITHUB_ENV;
+      # fi
 
-          if [ -z ${{ matrix.image.name }} == 'tests' ]; then 
-            staging_image_test=${{ fromJSON(steps.bake-pr.outputs.metadata).tests['image.name'] }}
-            echo "Staging Test image: $staging_image_test";
-            echo staging_image_test=$staging_image_test >> $GITHUB_ENV;
-          fi
+      # if [ -z ${{ matrix.image.name }} == 'tests' ]; then 
+      #   staging_image_test=${{ fromJSON(steps.bake-pr.outputs.metadata).tests['image.name'] }}
+      #   echo "Staging Test image: $staging_image_test";
+      #   echo staging_image_test=$staging_image_test >> $GITHUB_ENV;
+      # fi
 
       # docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.tags }}
 
