@@ -112,7 +112,6 @@ jobs:
           set: |
             *.platform=linux/amd64
             *.platform=linux/arm64
-            *.tags=${{ steps.docker-meta.outputs.tags }}
  
       # - name: Run docker-compose tests
       #   run: | 
