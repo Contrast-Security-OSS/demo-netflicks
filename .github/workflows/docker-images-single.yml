@@ -193,4 +193,4 @@ jobs:
           docker pull $STAGING_IMAGE_TESTS
 
           echo "Running tests for the Docker images..."
-          docker compose -f docker-compose.ci.yml --profile tests up --abort-on-container-exit --exit-code-from tests
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml --profile tests up --abort-on-container-exit --exit-code-from tests
