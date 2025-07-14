@@ -180,9 +180,13 @@ jobs:
 
       - name: Run tests
         run: |
-          echo 'IMAGE_NAME_RUNTIME=${{ needs.build.outputs.image-name-runtime }}' > .env
-          echo 'IMAGE_NAME_RUNTIME_WITH_CONTRAST=${{ needs.build.outputs.image-name-runtime-with-contrast }}' >> .env
-          echo 'IMAGE_NAME_TESTS=${{ needs.build.outputs.image-name-tests }}' >> .env
+          IMAGE_NAME_RUNTIME=${{ needs.build.outputs.image-name-runtime }}
+          IMAGE_NAME_RUNTIME_WITH_CONTRAST=${{ needs.build.outputs.image-name-runtime-with-contrast }}
+          IMAGE_NAME_TESTS=${{ needs.build.outputs.image-name-tests }}
+
+          echo "IMAGE_NAME_RUNTIME=$IMAGE_NAME_RUNTIME" > .env
+          echo "IMAGE_NAME_RUNTIME_WITH_CONTRAST=$IMAGE_NAME_RUNTIME_WITH_CONTRAST" >> .env
+          echo "IMAGE_NAME_TESTS=$IMAGE_NAME_TESTS" >> .env
 
           docker pull $IMAGE_NAME_RUNTIME
           docker pull $IMAGE_NAME_RUNTIME_WITH_CONTRAST
