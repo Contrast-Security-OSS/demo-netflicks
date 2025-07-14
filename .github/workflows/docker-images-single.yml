@@ -129,10 +129,10 @@ jobs:
           echo 'outputs.metadata.tests.image.name:'
           echo '${{ fromJSON(steps.bake-pr.outputs.metadata).tests['image.name'] }}'
           
-          $matrix_image_name = '${{ matrix.image.name }}'
+          matrix_image_name='${{ matrix.image.name }}'
           echo "Matrix Image Name: $matrix_image_name"
-          $image_name = '${{ fromJSON(steps.bake-pr.outputs.metadata).matrix_image_name['image.name'] }}'
-          $image_digest = '${{ fromJSON(steps.bake-pr.outputs.metadata).matrix_image_name['containerimage.digest'] }}'
+          image_name = '${{ fromJSON(steps.bake-pr.outputs.metadata).matrix_image_name['image.name'] }}'
+          image_digest = '${{ fromJSON(steps.bake-pr.outputs.metadata).matrix_image_name['containerimage.digest'] }}'
 
           echo "Image Name: $image_name"
           echo "Image Digest: $image_digest"
