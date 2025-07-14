@@ -142,7 +142,7 @@ jobs:
           echo "Image Digest: $image_digest"
           echo "image-name-${{ matrix.image.name }}=$image_name" >> $GITHUB_OUTPUT
           echo "image-digest-${{ matrix.image.name }}=$image_digest" >> $GITHUB_OUTPUT
-          echo "image-artifact-${{ matrix.image.name }}=$image_name@$image_digest" >> $GITHUB_OUTPUT"
+          echo "image-artifact-${{ matrix.image.name }}=$image_name@$image_digest" >> $GITHUB_OUTPUT
 
 
       # if [ -z ${{ matrix.image.name }} == 'runtime_with_contrast' ]; then 
