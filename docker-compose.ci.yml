@@ -3,12 +3,12 @@ services:
 
   # Development environment for Contrast Assess demos
   web-dev:
-    image: $staging_image_contrast
+    image: "${STAGING_IMAGE_CONTRAST}"
 
   web-prod:
-    image: $staging_image_contrast
+    image: "${STAGING_IMAGE_CONTRAST}"
 
   # Testing service
   tests:
     build:
-      image: $staging_image_tests
+      image: "${STAGING_IMAGE_TESTS}"
