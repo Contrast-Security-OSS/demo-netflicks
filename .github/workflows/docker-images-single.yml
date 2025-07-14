@@ -124,10 +124,6 @@ jobs:
           set: |
             *.platform=linux/amd64
             *.platform=linux/arm64
- 
-      # - name: Run docker-compose tests
-      #   run: | 
-      #     docker compose --profile tests up --abort-on-container-exit --exit-code-from tests
 
       - name: Inspect the created images
         id: inspect
@@ -140,24 +136,11 @@ jobs:
 
           echo "Image Name: $image_name"
           echo "Image Digest: $image_digest"
+          echo "Image Artifact: $image_name@$image_digest"
+
           echo "image-name-${{ matrix.image.name }}=$image_name" >> $GITHUB_OUTPUT
           echo "image-digest-${{ matrix.image.name }}=$image_digest" >> $GITHUB_OUTPUT
           echo "image-artifact-${{ matrix.image.name }}=$image_name@$image_digest" >> $GITHUB_OUTPUT
-
-
-      # if [ -z ${{ matrix.image.name }} == 'runtime_with_contrast' ]; then 
-      #   staging_image_contrast=${{ fromJSON(steps.bake-pr.outputs.metadata).runtime-with-contrast['image.name'] }}
-      #   echo "Staging Contrast image: $staging_image_contrast";
-      #   echo staging_image_contrast=$staging_image_contrast >> $GITHUB_ENV;
-      # fi
-
-      # if [ -z ${{ matrix.image.name }} == 'tests' ]; then 
-      #   staging_image_test=${{ fromJSON(steps.bake-pr.outputs.metadata).tests['image.name'] }}
-      #   echo "Staging Test image: $staging_image_test";
-      #   echo staging_image_test=$staging_image_test >> $GITHUB_ENV;
-      # fi
-
-      # docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.tags }}
 
       # - name: Login to Docker Hub
       #   uses: docker/login-action@v3
@@ -185,3 +168,25 @@ jobs:
       #       type=semver,pattern={{major}}.{{minor}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
       #       type=semver,pattern={{major}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
       #       type=raw,value=${{ matrix.image.name == 'runtime-with-contrast' && 'latest-contrast' || 'latest' }},enable={{is_default_branch}}
+
+  test: 
+    name: Test Docker Images
+    needs: 
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        run: |
+          echo "IMAGE_NAME_RUNTIME=${{ needs.build.outputs.image-name-runtime }}" > .env
+          echo "IMAGE_NAME_RUNTIME_WITH_CONTRAST=${{ needs.build.outputs.image-name-runtime-with-contrast }}" >> .env
+          echo "IMAGE_NAME_TESTS=${{ needs.build.outputs.image-name-tests }}" >> .env
+
+          docker pull $IMAGE_NAME_RUNTIME
+          docker pull $IMAGE_NAME_RUNTIME_WITH_CONTRAST
+          docker pull $IMAGE_NAME_TESTS
+
+          echo "Running tests for the Docker images..."
+          docker compose -f docker-compose.ci.yml --profile tests up --abort-on-container-exit --exit-code-from tests
