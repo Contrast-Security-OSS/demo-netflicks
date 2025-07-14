@@ -189,7 +189,7 @@ jobs:
           echo "IMAGE_NAME_TESTS=$IMAGE_NAME_TESTS" >> .env
 
           docker pull $IMAGE_NAME_RUNTIME
-          docker pull $IMAGE_NAME_RUNTIME_WITH_CONTRAST
+          # docker pull $IMAGE_NAME_RUNTIME_WITH_CONTRAST
           docker pull $IMAGE_NAME_TESTS
 
           echo "Running tests for the Docker images..."
