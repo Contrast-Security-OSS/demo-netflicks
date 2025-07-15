@@ -10,5 +10,4 @@ services:
 
   # Testing service
   tests:
-    build:
       image: "${STAGING_IMAGE_TESTS}"
