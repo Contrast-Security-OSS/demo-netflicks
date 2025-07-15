@@ -174,23 +174,23 @@ jobs:
     needs: 
       - build
     runs-on: ubuntu-latest
+    env: 
+      STAGING_IMAGE_RUNTIME: ${{ needs.build.outputs.image-name-runtime }}
+      STAGING_IMAGE_RUNTIME_WITH_CONTRAST: ${{ needs.build.outputs.image-name-runtime-with-contrast }}
+      STAGING_IMAGE_TESTS: ${{ needs.build.outputs.image-name-tests }}
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
 
-      - name: Run tests
+      - name: Pull the staging docker images
         run: |
-          STAGING_IMAGE_RUNTIME=${{ needs.build.outputs.image-name-runtime }}
-          STAGING_IMAGE_RUNTIME_WITH_CONTRAST=${{ needs.build.outputs.image-name-runtime-with-contrast }}
-          STAGING_IMAGE_TESTS=${{ needs.build.outputs.image-name-tests }}
-
           echo "STAGING_IMAGE_RUNTIME=$STAGING_IMAGE_RUNTIME" > .env
           echo "STAGING_IMAGE_RUNTIME_WITH_CONTRAST=$STAGING_IMAGE_RUNTIME_WITH_CONTRAST" >> .env
           echo "STAGING_IMAGE_TESTS=$STAGING_IMAGE_TESTS" >> .env
 
-          docker pull $STAGING_IMAGE_RUNTIME
-          # docker pull $STAGING_IMAGE_RUNTIME_WITH_CONTRAST
-          docker pull $STAGING_IMAGE_TESTS
+          docker compose pull 
 
+      - name: Run e2e tests with Playwright
+        run: |
           echo "Running tests for the Docker images..."
           docker compose -f docker-compose.yml -f docker-compose.ci.yml --profile tests up --abort-on-container-exit --exit-code-from tests
