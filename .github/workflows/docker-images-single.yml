@@ -113,8 +113,8 @@ jobs:
       - name: Inspect the created images
         id: inspect
         run: |
-          image_name='${{ fromJSON(steps.bake-pr.outputs.metadata).base['image.name'] }}'
-          image_digest='${{ fromJSON(steps.bake-pr.outputs.metadata).base['containerimage.digest'] }}'
+          image_name='${{ fromJSON(steps.bake-pr.outputs.metadata).build['image.name'] }}'
+          image_digest='${{ fromJSON(steps.bake-pr.outputs.metadata).build['containerimage.digest'] }}'
 
           echo "Image Name: $image_name"
           echo "Image Digest: $image_digest"
@@ -204,7 +204,7 @@ jobs:
       - name: Pull base image
         run: |
           echo "Pulling base image: ${{ needs.build-base.outputs.image-name-base }}"
-          docker pull ${{ needs.build-base.outputs.image-name-base }}
+          docker pull '${{ needs.build-base.outputs.image-name-base }}'
 
       - name: Build all Docker images for this PR
         id: bake-pr
