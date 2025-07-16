@@ -110,7 +110,7 @@ jobs:
             *.platform=linux/amd64
             *.platform=linux/arm64
             *.cache-from=type=gha
-            cache-to=type=gha,mode=max
+            *.cache-to=type=gha,mode=max
 
       - name: Inspect the created images
         id: inspect
