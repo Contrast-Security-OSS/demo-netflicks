@@ -34,7 +34,7 @@ const config: PlaywrightTestConfig = {
   reporter: [
     ['list', { printSteps: true}],
     ['html', { open: 'never' }],
-    ['json', { outputFile: 'results.json' }],
+    ['json', { outputFile: 'test-results/results.json' }],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {

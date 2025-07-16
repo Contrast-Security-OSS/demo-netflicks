@@ -17,21 +17,6 @@ services:
       retries: 10
       start_period: 10s
 
-
-  web-no-contrast:
-    image: contrastsecuritydemo/netflicks:latest
-    build: 
-      context: .
-      dockerfile: Dockerfile
-      target: runtime
-    depends_on:
-      database:
-        condition: service_healthy
-    ports:
-      - '8887:80'
-    environment:
-      - ConnectionStrings__DotNetFlicksConnection=Server=tcp:database,1433;Initial Catalog=DotNetFlicksDb;Persist Security Info=False;User ID=sa;Password=reallyStrongPwd123;MultipleActiveResultSets=False;TrustServerCertificate=yes;
-
   # Development environment for Contrast Assess demos
   web-dev:
     image: contrastsecuritydemo/netflicks:latest-contrast
