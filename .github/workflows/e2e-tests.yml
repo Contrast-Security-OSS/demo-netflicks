@@ -39,6 +39,16 @@ jobs:
           echo "Running tests for the Docker images..."
           docker compose -f docker-compose.yml -f docker-compose.ci.yml --profile tests up --abort-on-container-exit --exit-code-from tests
 
+      - name: check files
+        run: |
+          echo "ls -la /tests/playwright-report"
+          ls -la /tests/playwright-report
+          echo "ls -la /tests/test-results"
+          ls -la /tests/test-results
+          echo "---"
+          echo "ls -la /tests"
+          ls -la /tests
+      
       - name: Save Playwright report
         uses: actions/upload-artifact@v4
         with:
