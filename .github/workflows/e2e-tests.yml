@@ -37,7 +37,7 @@ jobs:
       - name: Run e2e tests with Playwright
         run: |
           echo "Running tests for the Docker images..."
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml --pull never --profile tests up --abort-on-container-exit --exit-code-from tests
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml --profile tests up --pull never --abort-on-container-exit --exit-code-from tests
 
       - name: check files
         run: |
