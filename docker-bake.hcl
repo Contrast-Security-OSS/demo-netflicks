@@ -11,6 +11,7 @@ group "default" {
 target "docker-metadata-action" {}
 
 target "build" {
+    inherits = ["docker-metadata-action"]
     target = "build"
     context = "."
     dockerfile = "Dockerfile"
