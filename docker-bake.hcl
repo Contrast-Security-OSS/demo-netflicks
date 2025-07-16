@@ -10,12 +10,17 @@ group "default" {
 
 target "docker-metadata-action" {}
 
+target "build" {
+    target = "build"
+    context = "."
+    dockerfile = "Dockerfile"
+}
+
 target "runtime" {
     inherits = ["docker-metadata-action"]
     context = "."
     dockerfile = "Dockerfile"
     target = "runtime"
-    no-cache = true
 }
 
 target "runtime-with-contrast" {
