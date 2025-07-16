@@ -13,5 +13,6 @@ services:
       image: "${STAGING_IMAGE_TESTS}"
       volumes: 
         - /tests/playwright-report:/tests/playwright-report
+        - /tests/test-results:/tests/test-results
 
 

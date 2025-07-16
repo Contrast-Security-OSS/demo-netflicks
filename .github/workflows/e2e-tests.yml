@@ -45,3 +45,16 @@ jobs:
           name: playwright-report
           path: /tests/playwright-report/
           retention-days: 7
+
+      - name: Save Playwright test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: /tests/test-results/
+          retention-days: 7
+
+      - name: Generate Playwright test results summary
+        uses: daun/playwright-report-summary@v3.9.0
+        with: 
+          report-file: /tests/test-results/results.json
+          job-summary: true
