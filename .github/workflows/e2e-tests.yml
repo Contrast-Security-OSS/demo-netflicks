@@ -41,13 +41,16 @@ jobs:
 
       - name: check files
         run: |
+          echo "ls -la /tests"
+          ls -la /tests
+          echo "---"
           echo "ls -la /tests/playwright-report"
           ls -la /tests/playwright-report
+          echo "---"
           echo "ls -la /tests/test-results"
           ls -la /tests/test-results
           echo "---"
-          echo "ls -la /tests"
-          ls -la /tests
+          
       
       - name: Save Playwright report
         uses: actions/upload-artifact@v4
