@@ -32,7 +32,7 @@ jobs:
           echo "STAGING_IMAGE_RUNTIME_WITH_CONTRAST=$STAGING_IMAGE_RUNTIME_WITH_CONTRAST" >> .env
           echo "STAGING_IMAGE_TESTS=$STAGING_IMAGE_TESTS" >> .env
 
-          docker compose pull --include-deps
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml pull --include-deps
 
       - name: Run e2e tests with Playwright
         run: |
