@@ -113,8 +113,8 @@ jobs:
       - name: Inspect the created images
         id: inspect
         run: |
-          image_name='${{ fromJSON(steps.bake-pr.outputs.metadata.base)['image.name'] }}'
-          image_digest='${{ fromJSON(steps.bake-pr.outputs.metadata.base)['containerimage.digest'] }}'
+          image_name='${{ fromJSON(steps.bake-pr.outputs.metadata).base['image.name'] }}'
+          image_digest='${{ fromJSON(steps.bake-pr.outputs.metadata).base['containerimage.digest'] }}'
 
           echo "Image Name: $image_name"
           echo "Image Digest: $image_digest"
