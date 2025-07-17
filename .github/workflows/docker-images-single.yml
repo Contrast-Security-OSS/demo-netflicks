@@ -223,8 +223,10 @@ jobs:
           set: |
             *.platform=linux/amd64
             *.platform=linux/arm64
-            *.cache-from=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}
-            *.cache-to=inline
+            *.cache-from=type=gha
+            *.cache-to=type=gha,mode=max
+          # *.cache-from=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}
+          # *.cache-to=inline
 
       - name: Inspect the created images
         id: inspect
