@@ -1,14 +1,11 @@
 name: End-to-End Tests
 
 on:
-  push:
-    branches: 
-      - main
-    tags: 
-      - v*
-  pull_request:
-    branches: 
-      - main
+  workflow_run:
+    workflows: ["Docker Image CI"]
+    branches: [main]
+    types: 
+      - completed
   workflow_dispatch:
 
 env:
@@ -22,6 +19,7 @@ jobs:
       STAGING_IMAGE_RUNTIME: "ghcr.io/contrast-security-oss/demo-netflicks:pr-8-runtime"
       STAGING_IMAGE_RUNTIME_WITH_CONTRAST: "ghcr.io/contrast-security-oss/demo-netflicks:pr-8-runtime-with-contrast"
       STAGING_IMAGE_TESTS: "ghcr.io/contrast-security-oss/demo-netflicks:pr-8-tests"
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4

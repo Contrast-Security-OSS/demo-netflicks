@@ -17,9 +17,6 @@ on:
         required: false
         default: 'latest'
 
-env:
-  REGISTRY_IMAGE: contrastsecuritydemo/netflicks
-
 jobs:
   prepare:
     name: Prepare for multi-stage builds
@@ -270,35 +267,3 @@ jobs:
       #       type=semver,pattern={{major}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
       #       type=raw,value=${{ matrix.image.name == 'runtime-with-contrast' && 'latest-contrast' || 'latest' }},enable={{is_default_branch}}
 
-  test: 
-    name: Test Docker Images
-    needs: 
-      - build
-    runs-on: ubuntu-latest
-    env: 
-      STAGING_IMAGE_RUNTIME: ${{ needs.build.outputs.image-name-runtime }}
-      STAGING_IMAGE_RUNTIME_WITH_CONTRAST: ${{ needs.build.outputs.image-name-runtime-with-contrast }}
-      STAGING_IMAGE_TESTS: ${{ needs.build.outputs.image-name-tests }}
-    steps:
-      - name: Checkout branch
-        uses: actions/checkout@v4
-
-      - name: Pull the staging docker images
-        run: |
-          echo "STAGING_IMAGE_RUNTIME=$STAGING_IMAGE_RUNTIME" > .env
-          echo "STAGING_IMAGE_RUNTIME_WITH_CONTRAST=$STAGING_IMAGE_RUNTIME_WITH_CONTRAST" >> .env
-          echo "STAGING_IMAGE_TESTS=$STAGING_IMAGE_TESTS" >> .env
-
-          docker compose pull 
-
-      - name: Run e2e tests with Playwright
-        run: |
-          echo "Running tests for the Docker images..."
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml --profile tests up --abort-on-container-exit --exit-code-from tests
-
-      - name: Save Playwright report
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: ./playwright-report
-          retention-days: 7
