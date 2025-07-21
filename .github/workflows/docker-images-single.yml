@@ -182,8 +182,6 @@ jobs:
       
       - name: Docker Setup Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          cache-from: type=gha,scope=ghcr.io/${{ github.repository }}
 
       - name: Extract metadata
         id: docker-meta
@@ -220,8 +218,8 @@ jobs:
           set: |
             *.platform=linux/amd64
             *.platform=linux/arm64
-            *.cache-from=type=registry,ref='${{ needs.build-base.outputs.image-name-base }}-buildcache'
-            *.cache-to=type=registry,ref='${{ needs.build-base.outputs.image-name-base }}-buildcache,mode=max'
+            *.cache-from=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache
+            *.cache-to=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache,mode=max
 
       - name: Inspect the created images
         id: inspect
