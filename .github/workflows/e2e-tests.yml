@@ -1,24 +1,27 @@
 name: End-to-End Tests
 
 on:
-  workflow_run:
-    workflows: ["Docker Image CI"]
-    branches: [main]
-    types: 
-      - completed
+  workflow_call:
+    inputs:
+      staging_image_runtime:
+        required: true
+        type: string
+      staging_image_runtime_with_contrast:
+        required: true
+        type: string
+      staging_image_tests:
+        required: true
+        type: string
   workflow_dispatch:
-
-env:
-  REGISTRY_IMAGE: contrastsecuritydemo/netflicks
 
 jobs:
   test: 
     name: Test Docker Images
     runs-on: ubuntu-latest
     env: 
-      STAGING_IMAGE_RUNTIME: "ghcr.io/contrast-security-oss/demo-netflicks:pr-8-runtime"
-      STAGING_IMAGE_RUNTIME_WITH_CONTRAST: "ghcr.io/contrast-security-oss/demo-netflicks:pr-8-runtime-with-contrast"
-      STAGING_IMAGE_TESTS: "ghcr.io/contrast-security-oss/demo-netflicks:pr-8-tests"
+      STAGING_IMAGE_RUNTIME: ${{ inputs.staging_image_runtime }}
+      STAGING_IMAGE_RUNTIME_WITH_CONTRAST: ${{ inputs.staging_image_runtime_with_contrast }}
+      STAGING_IMAGE_TESTS: ${{ inputs.staging_image_tests }}
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout branch
