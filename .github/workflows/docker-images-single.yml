@@ -106,8 +106,8 @@ jobs:
           set: |
             *.platform=linux/amd64
             *.platform=linux/arm64
-            *.cache-from=type=registry,ref=${{ steps.docker-meta.outputs.tags[0] }}-buildcache
-            *.cache-to=type=registry,ref=${{ steps.docker-meta.outputs.tags[0] }}-buildcache,mode=max
+            *.cache-from=type=registry,ref='${{ steps.docker-meta.outputs.tags[0] }}-buildcache'
+            *.cache-to=type=registry,ref='${{ steps.docker-meta.outputs.tags[0] }}-buildcache',mode=max
 
       - name: Inspect the created images
         id: inspect
@@ -220,8 +220,8 @@ jobs:
           set: |
             *.platform=linux/amd64
             *.platform=linux/arm64
-            *.cache-from=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache
-            *.cache-to=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache,mode=max
+            *.cache-from=type=registry,ref='${{ needs.build-base.outputs.image-name-base }}-buildcache'
+            *.cache-to=type=registry,ref='${{ needs.build-base.outputs.image-name-base }}-buildcache,mode=max'
 
       - name: Inspect the created images
         id: inspect
