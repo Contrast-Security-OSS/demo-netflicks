@@ -32,9 +32,10 @@ jobs:
           echo "Contrast agent version: ${CONTRAST_VERSION}"
           echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
 
-  #TODO: Add a job to build the base image first
+  # MULTISTAGE DOCKERFILE - first create and push the build stage to speed up
+  # subsequent builds.
   build-base:
-    name: Build Base Image
+    name: Create Docker Build Stage
     runs-on: ubuntu-latest
     needs: 
       - prepare
@@ -79,33 +80,42 @@ jobs:
       - name: Extract metadata
         id: docker-meta
         uses: docker/metadata-action@v5
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
         with:
           images: |
             ghcr.io/${{ github.repository }}
           flavor: |
             latest=false
           annotations: |
-            org.opencontainers.image.description=Base image buildcache for the netflicks application 
+            org.opencontainers.image.description=Base image - build stage and buildcache for the netflicks application 
             org.opencontainers.image.vendor=Contrast Security
           tags: |
             type=ref,event=branch,suffix=-base
             type=ref,event=branch,suffix=-base
             type=ref,event=pr,suffix=-base
             type=ref,event=pr,suffix=-base
-            
+      
+      # To speed up the builds, we use caching of the docker image layers.
+      # Cache rules:
+      # - Use the existing base image cache from the main branch first for new PRs
+      # - After the first build in a PR, cache-to will save the cache to the registry under the PR name
+      # - Subsequent builds in the same PR will use the cache from the PR name
+      # - Otherwise, different PRs would cause cache pollution if they share the same base image cache
       - name: Build the base docker image for this PR
         id: bake-base-pr
         uses: docker/bake-action@v6
         with:
           files: |
             docker-bake.hcl
-            cwd://${{ steps.docker-meta.outputs.bake-file}}
+            cwd://${{ steps.docker-meta.outputs.bake-file }}
           targets: |
             build
           push: true
           set: |
             *.platform=linux/amd64
             *.platform=linux/arm64
+            *.cache-from=type=registry,ref=ghcr.io/${{ github.repository }}:base-buildcache
             *.cache-from=type=registry,ref=${{ steps.docker-meta.outputs.tags }}-buildcache
             *.cache-to=type=registry,ref=${{ steps.docker-meta.outputs.tags }}-buildcache,mode=max
 
@@ -126,7 +136,7 @@ jobs:
   #TODO: Then share the base image with other jobs via cache
 
   build:
-    name: Build Docker Images
+    name: Docker Build ${{ matrix.image.name }}
     needs: 
       - prepare
       - build-base
@@ -218,6 +228,7 @@ jobs:
           set: |
             *.platform=linux/amd64
             *.platform=linux/arm64
+            *.cache-from=type=registry,ref=ghcr.io/${{ github.repository }}:${{ matrix.image.name }}-buildcache
             *.cache-from=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache
             *.cache-to=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache,mode=max
 
