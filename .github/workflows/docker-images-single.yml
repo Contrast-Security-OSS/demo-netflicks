@@ -255,26 +255,7 @@ jobs:
       #     username: ${{ secrets.DOCKERHUB_USERNAME }}
       #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # - name: Extract metadata
-      #   id: docker-meta
-      #   uses: docker/metadata-action@v5
-      #   with:
-      #     images: |
-      #       - contrastsecuritydemo/netflicks
-      #     flavor: |
-      #       latest=false
-      #     labels: |
-      #       org.opencontainers.image.description=A deliberately vulnerable .NET Core Application for Contrast Security demos
-      #       org.opencontainers.image.vendor=Contrast Security
-      #     tags: |
-      #       type=ref,event=branch,suffix=-${{ matrix.image.name }}
-      #       type=ref,event=branch,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
-      #       type=ref,event=pr,suffix=-${{ matrix.image.name }}
-      #       type=ref,event=pr,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
-      #       type=semver,pattern={{version}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
-      #       type=semver,pattern={{major}}.{{minor}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
-      #       type=semver,pattern={{major}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
-      #       type=raw,value=${{ matrix.image.name == 'runtime-with-contrast' && 'latest-contrast' || 'latest' }},enable={{is_default_branch}}
+
 
   test:
     needs: 
@@ -284,3 +265,51 @@ jobs:
       staging_image_runtime: ${{ needs.build.outputs.image-name-runtime }}
       staging_image_runtime_with_contrast: ${{ needs.build.outputs.image-name-runtime-with-contrast }}
       staging_image_tests: ${{ needs.build.outputs.image-name-tests }}
+
+  #
+  # Release Internal
+  #
+  release-internal:
+    needs:
+      - prepare
+      - build
+      - test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - name: runtime
+          - name: runtime-with-contrast
+          - name: tests
+    steps:
+
+      - name: Extract metadata
+        id: release-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          flavor: |
+            latest=true
+          annotations: |
+            org.opencontainers.image.description=A deliberately vulnerable .NET Core Application for Contrast Security demos
+            org.opencontainers.image.vendor=Contrast Security
+          tags: |
+            type=semver,pattern={{version}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
+            type=semver,pattern={{major}}.{{minor}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
+            type=semver,pattern={{major}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
+            type=raw,value=${{ matrix.image.name == 'runtime-with-contrast' && 'latest-contrast' || 'latest' }},enable=${{ matrix.image.name != 'tests' }}
+            type=raw,value=tests,enable=${{ matrix.image.name == 'tests' }}
+
+      - name: Release image (internal)
+        uses: akhilerm/tag-push-action@v2.1.0
+        with:
+          src: ${{ needs.build.outputs[format('image-name-{0}', matrix.image.name)] }}
+          dst: |
+            ${{ steps.release-meta.outputs.tags }}
