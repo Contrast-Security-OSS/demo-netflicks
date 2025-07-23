@@ -91,10 +91,8 @@ jobs:
           # resolves to empty string
           # image_name='${{ steps.docker-meta.outputs.tags[0] }}'
           
-          # returns a list with each string on a new line - breaks shit
-          # image_name='${{ steps.docker-meta.outputs.tags }}'
-
-          image_name=$(head -n1 <<< "${{ steps.docker-meta.outputs.tags }}")
+          # Use the json output instead of the tags output
+          # image_name='${{ steps.docker-meta.outputs.json.tags }}'
           
           echo "$image_name"
 
