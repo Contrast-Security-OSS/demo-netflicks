@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Single Build Docker
 
 on:
   push:
@@ -23,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       contrast_version: ${{ steps.versions.outputs.contrast_version }}
+      docker-meta-json: ${{ steps.docker-meta.outputs.json }}
+      docker-meta-bake-file: ${{ steps.docker-meta.outputs.bake-file }}
     steps:
       - name: Check latest Contrast agent version
         id: versions
@@ -31,11 +33,27 @@ jobs:
           CONTRAST_VERSION=$(docker image inspect contrast/agent-dotnet-core:latest --format '{{ index .Config.Labels "org.opencontainers.image.version" }}')
           echo "Contrast agent version: ${CONTRAST_VERSION}"
           echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
+      
+      - name: Extract metadata
+        id: docker-meta
+        uses: docker/metadata-action@v5
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          flavor: |
+            latest=false
+          annotations: |
+            org.opencontainers.image.vendor=Contrast Security
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
 
   # MULTISTAGE DOCKERFILE - first create and push the build stage to speed up
   # subsequent builds.
-  build-base:
-    name: Create Docker Build Stage
+  docker-build:
+    name: Docker Build Images
     runs-on: ubuntu-latest
     needs: 
       - prepare
@@ -77,25 +95,12 @@ jobs:
       - name: Docker Setup Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Extract metadata
-        id: docker-meta
-        uses: docker/metadata-action@v5
-        env:
-          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
-        with:
-          images: |
-            ghcr.io/${{ github.repository }}
-          flavor: |
-            latest=false
-          annotations: |
-            org.opencontainers.image.description=Base image - build stage and buildcache for the netflicks application 
-            org.opencontainers.image.vendor=Contrast Security
-          tags: |
-            type=ref,event=branch,suffix=-base
-            type=ref,event=branch,suffix=-base
-            type=ref,event=pr,suffix=-base
-            type=ref,event=pr,suffix=-base
-      
+      - name: Check tags
+        run: |
+          echo "Tags: ${{ needs.prepare.outputs.docker-meta-json.tags }}"
+          echo "JSON: ${{ needs.prepare.outputs.docker-meta-json }}"
+          echo "Bake file: ${{ needs.prepare.outputs.docker-meta-bake-file }}"
+
       # To speed up the builds, we use caching of the docker image layers.
       # Cache rules:
       # - Use the existing base image cache from the main branch first for new PRs
@@ -108,7 +113,7 @@ jobs:
         with:
           files: |
             docker-bake.hcl
-            cwd://${{ steps.docker-meta.outputs.bake-file }}
+            cwd://${{ needs.prepare.outputs.docker-meta-bake-file }}
           targets: |
             build
           push: true
@@ -116,8 +121,8 @@ jobs:
             *.platform=linux/amd64
             *.platform=linux/arm64
             *.cache-from=type=registry,ref=ghcr.io/${{ github.repository }}:base-buildcache
-            *.cache-from=type=registry,ref=${{ steps.docker-meta.outputs.tags }}-buildcache
-            *.cache-to=type=registry,ref=${{ steps.docker-meta.outputs.tags }}-buildcache,mode=max
+            *.cache-from=type=registry,ref=${{ needs.prepare.outputs.docker-meta-json.tags }}-buildcache
+            *.cache-to=type=registry,ref=${{ needs.prepare.outputs.docker-meta-json.tags }}-buildcache,mode=max
 
       - name: Inspect the created images
         id: inspect
