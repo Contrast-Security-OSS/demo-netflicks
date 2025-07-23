@@ -98,9 +98,9 @@ jobs:
 
       - name: Check tags
         run: |
-          echo "Tags: ${{ needs.prepare.outputs.docker-meta-json.tags }}"
-          echo "JSON: ${{ needs.prepare.outputs.docker-meta-json }}"
-          echo "Bake file: ${{ needs.prepare.outputs.docker-meta-bake-file }}"
+          echo "Tags: ${{ steps.docker-meta.outputs.tags }}"
+          echo "JSON: ${{ steps.docker-meta.outputs.json }}"
+          echo "Bake file: ${{ steps.docker-meta.outputs.bake-file }}"
 
       # To speed up the builds, we use caching of the docker image layers.
       # Cache rules:
@@ -114,7 +114,7 @@ jobs:
         with:
           files: |
             docker-bake.hcl
-            cwd://${{ needs.prepare.outputs.docker-meta-bake-file }}
+            cwd://${{ steps.docker-meta.outputs.bake-file }}
           targets: |
             build
           push: true
@@ -122,8 +122,8 @@ jobs:
             *.platform=linux/amd64
             *.platform=linux/arm64
             *.cache-from=type=registry,ref=ghcr.io/${{ github.repository }}:base-buildcache
-            *.cache-from=type=registry,ref=${{ needs.prepare.outputs.docker-meta-json.tags }}-buildcache
-            *.cache-to=type=registry,ref=${{ needs.prepare.outputs.docker-meta-json.tags }}-buildcache,mode=max
+            *.cache-from=type=registry,ref=${{ steps.docker-meta.outputs.json.tags }}-buildcache
+            *.cache-to=type=registry,ref=${{ steps.docker-meta.outputs.json.tags }}-buildcache,mode=max
 
       - name: Inspect the created images
         id: inspect
@@ -139,37 +139,37 @@ jobs:
           echo "image-digest-base=$image_digest" >> $GITHUB_OUTPUT
           echo "image-artifact-base=$image_name@$image_digest" >> $GITHUB_OUTPUT
 
-      - name: Build all Docker images for this PR
-        id: bake-pr
-        uses: docker/bake-action@v6
-        with:
-          files: |
-            docker-bake.hcl
-            cwd://${{ steps.docker-meta.outputs.bake-file}}
-          push: false
-          set: |
-            *.platform=linux/amd64
-            *.platform=linux/arm64
-            *.cache-from=type=registry,ref=ghcr.io/${{ github.repository }}:${{ matrix.image.name }}-buildcache
-            *.cache-from=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache
-            *.cache-to=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache,mode=max
+      # - name: Build all Docker images for this PR
+      #   id: bake-pr
+      #   uses: docker/bake-action@v6
+      #   with:
+      #     files: |
+      #       docker-bake.hcl
+      #       cwd://${{ steps.docker-meta.outputs.bake-file}}
+      #     push: false
+      #     set: |
+      #       *.platform=linux/amd64
+      #       *.platform=linux/arm64
+      #       *.cache-from=type=registry,ref=ghcr.io/${{ github.repository }}:${{ matrix.image.name }}-buildcache
+      #       *.cache-from=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache
+      #       *.cache-to=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache,mode=max
 
-      - name: Inspect the created images
-        id: inspect-pr
-        run: |
+      # - name: Inspect the created images
+      #   id: inspect-pr
+      #   run: |
           
-          matrix_image_name='${{ matrix.image.name }}'
-          echo "Matrix Image Name: $matrix_image_name"
-          image_name='${{ fromJSON(steps.bake-pr.outputs.metadata)[matrix.image.name]['image.name'][0] }}'
-          image_digest='${{ fromJSON(steps.bake-pr.outputs.metadata)[matrix.image.name]['containerimage.digest'] }}'
+      #     matrix_image_name='${{ matrix.image.name }}'
+      #     echo "Matrix Image Name: $matrix_image_name"
+      #     image_name='${{ fromJSON(steps.bake-pr.outputs.metadata)[matrix.image.name]['image.name'][0] }}'
+      #     image_digest='${{ fromJSON(steps.bake-pr.outputs.metadata)[matrix.image.name]['containerimage.digest'] }}'
 
-          echo "Image Name: $image_name"
-          echo "Image Digest: $image_digest"
-          echo "Image Artifact: $image_name@$image_digest"
+      #     echo "Image Name: $image_name"
+      #     echo "Image Digest: $image_digest"
+      #     echo "Image Artifact: $image_name@$image_digest"
 
-          echo "image-name-${{ matrix.image.name }}=$image_name" >> $GITHUB_OUTPUT
-          echo "image-digest-${{ matrix.image.name }}=$image_digest" >> $GITHUB_OUTPUT
-          echo "image-artifact-${{ matrix.image.name }}=$image_name@$image_digest" >> $GITHUB_OUTPUT
+      #     echo "image-name-${{ matrix.image.name }}=$image_name" >> $GITHUB_OUTPUT
+      #     echo "image-digest-${{ matrix.image.name }}=$image_digest" >> $GITHUB_OUTPUT
+      #     echo "image-artifact-${{ matrix.image.name }}=$image_name@$image_digest" >> $GITHUB_OUTPUT
 
   #TODO: Then share the base image with other jobs via cache
 
