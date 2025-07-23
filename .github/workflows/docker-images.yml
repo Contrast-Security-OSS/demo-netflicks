@@ -292,6 +292,7 @@ jobs:
     needs:
       - prepare
       - build
+      - test
     runs-on: ubuntu-latest
     permissions:
       contents: read
