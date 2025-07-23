@@ -1,0 +1,18 @@
+
+services:
+
+  # Development environment for Contrast Assess demos
+  web-dev:
+    image: "${STAGING_IMAGE_RUNTIME}"
+
+  web-prod:
+    image: "${STAGING_IMAGE_RUNTIME}"
+
+  # Testing service
+  tests:
+      image: "${STAGING_IMAGE_TESTS}"
+      volumes: 
+        - /tests/playwright-report:/tests/playwright-report
+        - /tests/test-results:/tests/test-results
+
+

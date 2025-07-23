@@ -1,0 +1,77 @@
+name: End-to-End Tests
+
+on:
+  workflow_call:
+    inputs:
+      staging_image_runtime:
+        required: true
+        type: string
+      staging_image_runtime_with_contrast:
+        required: true
+        type: string
+      staging_image_tests:
+        required: true
+        type: string
+  workflow_dispatch:
+
+jobs:
+  test: 
+    name: Test Docker Images
+    runs-on: ubuntu-latest
+    env: 
+      STAGING_IMAGE_RUNTIME: ${{ inputs.staging_image_runtime }}
+      STAGING_IMAGE_RUNTIME_WITH_CONTRAST: ${{ inputs.staging_image_runtime_with_contrast }}
+      STAGING_IMAGE_TESTS: ${{ inputs.staging_image_tests }}
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Pull the staging docker images
+        run: |
+          echo "STAGING_IMAGE_RUNTIME=$STAGING_IMAGE_RUNTIME"
+          echo "STAGING_IMAGE_RUNTIME_WITH_CONTRAST=$STAGING_IMAGE_RUNTIME_WITH_CONTRAST"
+          echo "STAGING_IMAGE_TESTS=$STAGING_IMAGE_TESTS"
+
+          echo "STAGING_IMAGE_RUNTIME=$STAGING_IMAGE_RUNTIME" > .env
+          echo "STAGING_IMAGE_RUNTIME_WITH_CONTRAST=$STAGING_IMAGE_RUNTIME_WITH_CONTRAST" >> .env
+          echo "STAGING_IMAGE_TESTS=$STAGING_IMAGE_TESTS" >> .env
+
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml --profile tests pull --include-deps
+
+      - name: Run e2e tests with Playwright
+        run: |
+          echo "Running tests for the Docker images..."
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml --profile tests up --no-build --abort-on-container-exit --exit-code-from tests
+
+      - name: check files
+        run: |
+          echo "ls -la /tests"
+          ls -la /tests
+          echo "---"
+          echo "ls -la /tests/playwright-report"
+          ls -la /tests/playwright-report
+          echo "---"
+          echo "ls -la /tests/test-results"
+          ls -la /tests/test-results
+          echo "---"
+          
+      
+      - name: Save Playwright report
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: /tests/playwright-report/
+          retention-days: 7
+
+      - name: Save Playwright test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: /tests/test-results/
+          retention-days: 7
+
+      - name: Generate Playwright test results summary
+        uses: daun/playwright-report-summary@v3.9.0
+        with: 
+          report-file: /tests/test-results/results.json
+          job-summary: true
