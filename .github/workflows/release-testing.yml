@@ -87,7 +87,14 @@ jobs:
           
           matrix_image_name='${{ matrix.image.name }}'
           echo "Matrix Image Name: $matrix_image_name"
-          image_name='${{ steps.docker-meta.outputs.tags[0] }}'
+          
+          # resolves to empty string
+          # image_name='${{ steps.docker-meta.outputs.tags[0] }}'
+          
+          image_name='${{ steps.docker-meta.outputs.tags }}'
+          echo "$image_name"
+
+
           image_digest='abcdefghijk' # Placeholder for actual digest
 
           echo "Image Name: $image_name"
