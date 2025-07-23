@@ -206,9 +206,7 @@ jobs:
             org.opencontainers.image.vendor=Contrast Security
           tags: |
             type=ref,event=branch,suffix=-${{ matrix.image.name }}
-            type=ref,event=branch,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
             type=ref,event=pr,suffix=-${{ matrix.image.name }}
-            type=ref,event=pr,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
       
       - name: Pull base image
         run: |
@@ -248,6 +246,12 @@ jobs:
           echo "image-name-${{ matrix.image.name }}=$image_name" >> $GITHUB_OUTPUT
           echo "image-digest-${{ matrix.image.name }}=$image_digest" >> $GITHUB_OUTPUT
           echo "image-artifact-${{ matrix.image.name }}=$image_name@$image_digest" >> $GITHUB_OUTPUT
+
+      # Add in semver tagging for agent versions (if desired)
+      #   type=ref,event=branch,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
+      #   type=ref,event=pr,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
+
+            
 
       # - name: Login to Docker Hub
       #   uses: docker/login-action@v3
