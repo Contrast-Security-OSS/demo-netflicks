@@ -1,0 +1,154 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: 
+      - main
+    tags: 
+      - v*
+  pull_request:
+    branches: 
+      - main
+  
+  workflow_dispatch:
+    inputs: 
+      contrast_agent_version:
+        description: 'Contrast .NET Core agent version to build with'
+        required: false
+        default: 'latest'
+
+jobs:
+  prepare:
+    name: Prepare for multi-stage builds
+    runs-on: ubuntu-latest
+    outputs:
+      contrast_version: ${{ steps.versions.outputs.contrast_version }}
+    steps:
+      - name: Check latest Contrast agent version
+        id: versions
+        run: |
+          docker pull contrast/agent-dotnet-core:${{ github.event.inputs.contrast_agent_version || 'latest' }}
+          CONTRAST_VERSION=$(docker image inspect contrast/agent-dotnet-core:latest --format '{{ index .Config.Labels "org.opencontainers.image.version" }}')
+          echo "Contrast agent version: ${CONTRAST_VERSION}"
+          echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
+
+  #TODO: Then share the base image with other jobs via cache
+
+  build:
+    name: Docker Build ${{ matrix.image.name }}
+    needs: 
+      - prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - name: runtime
+          - name: runtime-with-contrast
+          - name: tests
+    outputs:
+      image-name-runtime: ${{ steps.inspect.outputs['image-name-runtime'] }}
+      image-digest-runtime: ${{ steps.inspect.outputs['image-digest-runtime'] }}
+      image-artifact-runtime: ${{ steps.inspect.outputs['image-artifact-runtime'] }}
+      image-name-runtime-with-contrast: ${{ steps.inspect.outputs['image-name-runtime-with-contrast'] }}
+      image-digest-runtime-with-contrast: ${{ steps.inspect.outputs['image-digest-runtime-with-contrast'] }}
+      image-artifact-runtime-with-contrast: ${{ steps.inspect.outputs['image-artifact-runtime-with-contrast'] }}
+      image-name-tests: ${{ steps.inspect.outputs['image-name-tests'] }}
+      image-digest-tests: ${{ steps.inspect.outputs['image-digest-tests'] }}
+      image-artifact-tests: ${{ steps.inspect.outputs['image-artifact-tests'] }}
+    steps:
+
+      - name: Extract metadata
+        id: docker-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          flavor: |
+            latest=false
+          annotations: |
+            org.opencontainers.image.description=A deliberately vulnerable .NET Core Application for Contrast Security demos
+            org.opencontainers.image.vendor=Contrast Security
+          tags: |
+            type=ref,event=branch,suffix=-${{ matrix.image.name }}
+            type=ref,event=branch,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
+            type=ref,event=pr,suffix=-${{ matrix.image.name }}
+            type=ref,event=pr,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
+      
+
+      - name: Inspect the created images
+        id: inspect
+        run: |
+          
+          matrix_image_name='${{ matrix.image.name }}'
+          echo "Matrix Image Name: $matrix_image_name"
+          image_name='ghcr.io/${{ github.repository }}:pr-8-${{ matrix.image.name }}'
+          image_digest='abcdefghijk' # Placeholder for actual digest
+
+          echo "Image Name: $image_name"
+          echo "Image Digest: $image_digest"
+          echo "Image Artifact: $image_name@$image_digest"
+
+          echo "image-name-${{ matrix.image.name }}=$image_name" >> $GITHUB_OUTPUT
+          echo "image-digest-${{ matrix.image.name }}=$image_digest" >> $GITHUB_OUTPUT
+          echo "image-artifact-${{ matrix.image.name }}=$image_name@$image_digest" >> $GITHUB_OUTPUT
+
+
+  #
+  # Release Internal
+  #
+  release-internal:
+    needs:
+      - prepare
+      - build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - name: runtime
+          - name: runtime-with-contrast
+          - name: tests
+    steps:
+
+      - name: Extract metadata
+        id: release-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          flavor: |
+            latest=true
+          annotations: |
+            org.opencontainers.image.description=A deliberately vulnerable .NET Core Application for Contrast Security demos
+            org.opencontainers.image.vendor=Contrast Security
+          tags: |
+            type=semver,pattern={{version}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
+            type=semver,pattern={{major}}.{{minor}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
+            type=semver,pattern={{major}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
+            type=raw,value=${{ matrix.image.name == 'runtime-with-contrast' && 'latest-contrast' || 'latest' }},enable=${{ matrix.image.name != 'tests' }}
+            type=raw,value=tests,enable=${{ matrix.image.name == 'tests' }}
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release image (internal)
+        uses: akhilerm/tag-push-action@v2.1.0
+        with:
+          src: ${{ needs.build.outputs[format('image-name-{0}', matrix.image.name)] }}
+          dst: |
+            ${{ steps.release-meta.outputs.tags }}

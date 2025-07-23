@@ -1,401 +1,333 @@
-name: Old Docker CI
+name: Docker Image CI
 
 on:
-  # push:
-  #   branches: 
-  #     - main
-  #   tags: 
-  #     - v*
-  # pull_request:
-  #   branches: 
-  #     - main
+  push:
+    branches: 
+      - main
+    tags: 
+      - v*
+  pull_request:
+    branches: 
+      - main
+  
   workflow_dispatch:
-
-env:
-  REGISTRY_IMAGE: contrastsecuritydemo/netflicks
+    inputs: 
+      contrast_agent_version:
+        description: 'Contrast .NET Core agent version to build with'
+        required: false
+        default: 'latest'
 
 jobs:
   prepare:
+    name: Prepare for multi-stage builds
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.platforms.outputs.matrix }}
+      contrast_version: ${{ steps.versions.outputs.contrast_version }}
     steps:
-      - name: Checkout branch
-        uses: actions/checkout@v4
-
-      - name: Create matrix
-        id: platforms
+      - name: Check latest Contrast agent version
+        id: versions
         run: |
-          echo "matrix=$(docker buildx bake runtime-multiarch --print | jq -cr '.target."runtime-multiarch".platforms')" >> ${GITHUB_OUTPUT}
-          echo "matrix=$(docker buildx bake runtime-with-contrast-multiarch --print | jq -cr '.target."runtime-with-contrast-multiarch".platforms')" >> ${GITHUB_OUTPUT}
-          echo "matrix=$(docker buildx bake tests-multiarch --print | jq -cr '.target."tests-multiarch".platforms')" >> ${GITHUB_OUTPUT}
-          echo ${GITHUB_OUTPUT}
+          docker pull contrast/agent-dotnet-core:${{ github.event.inputs.contrast_agent_version || 'latest' }}
+          CONTRAST_VERSION=$(docker image inspect contrast/agent-dotnet-core:latest --format '{{ index .Config.Labels "org.opencontainers.image.version" }}')
+          echo "Contrast agent version: ${CONTRAST_VERSION}"
+          echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
 
-      - name: Show matrix
-        run: echo "${{ steps.platforms.outputs.matrix }}"
-
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY_IMAGE }}
-      
-      - name: Rename meta bake definition file
-        run: |
-          mv "${{ steps.meta.outputs.bake-file }}" "${{ runner.temp }}/bake-meta.json"
-          echo ${{ runner.temp }}/bake-meta.json
-
-      - name: Upload meta bake definition
-        uses: actions/upload-artifact@v4
-        with:
-          name: bake-meta
-          path: ${{ runner.temp }}/bake-meta.json
-          if-no-files-found: error
-          retention-days: 1
-      
-      
-  build:
-    name: Build Multi-Stage Docker Images
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: ${{ fromJson(needs.prepare.outputs.matrix) }}
-        include:
-          - platform: linux/amd64
-            runner: ubuntu-latest
-          - platform: linux/arm64
-            runner: macos-latest
-    runs-on: ${{ matrix.runner }}
+  # MULTISTAGE DOCKERFILE - first create and push the build stage to speed up
+  # subsequent builds.
+  build-base:
+    name: Create Docker Build Stage
+    runs-on: ubuntu-latest
     needs: 
       - prepare
-    
-    # outputs:
-    #   image-digest: ${{ steps.build.outputs.digest }}
-    #   metadata: ${{ steps.meta.outputs.json }}
-    #   contrast_version: ${{ steps.versions.outputs.contrast_version }}
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    outputs:
+      image-name-base: ${{ steps.inspect.outputs['image-name-base'] }}
+      image-digest-base: ${{ steps.inspect.outputs['image-digest-base'] }}
     steps:
-      - name: echo
-        run: |
-          echo "matrix.platform = ${{ matrix.platform}}"
-          echo "matrix.runner = ${{ matrix.runner}}"
-          echo "matrix.platform.runner = ${{ matrix.platform.runner}}"
-
       - name: Checkout branch
         uses: actions/checkout@v4
-
-      - name: Prepare
-        run: |
-          platform=${{ matrix.platform }}
-          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
       
-      - name: Download meta bake definition
-        uses: actions/download-artifact@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          name: bake-meta
-          path: ${{ runner.temp }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       
-      # - 
-      #   name: Set up Docker daemon for multi-platform builds
-      #   uses: docker/setup-docker-action@v4
-      #   with:
-      #     daemon-config: |
-      #       {
-      #         "debug": true,
-      #         "features": {
-      #           "containerd-snapshotter": true
-      #         }
-      #       }
+      - name: Set up Docker daemon for multi-platform builds
+        uses: docker/setup-docker-action@v4
+        with:
+          daemon-config: |
+            {
+              "debug": true,
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }
       
-      # - name: Docker Setup QEMU
-      #   uses: docker/setup-qemu-action@v3
-      #   with:
-      #     platforms: all
+      - name: Docker Setup QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
       
       - name: Docker Setup Buildx
         uses: docker/setup-buildx-action@v3
-      
-      - name: print the problem file
-        run: |
-          echo "bake-meta.json file: ${{ runner.temp }}/bake-meta.json"
-          cat "${{ runner.temp }}/bake-meta.json"
 
-      # Need to do two bake steps because load=true is not compatible with push-by-digest=true
-      # https://github.com/moby/buildkit/issues/5556
-      - name: Build all image variants with Docker Buildx Bake (for local testing)
-        id: bake-local
-        uses: docker/bake-action@v6
-        with:
-          files: |
-            docker-bake.hcl
-          targets: |
-            multiarch
-          push: false
-          load: true
-          set: | 
-            *.platform=${{ matrix.platform }}
- 
-      # - name: Run docker-compose tests
-      #   run: | 
-      #     docker compose --profile tests up --abort-on-container-exit --exit-code-from tests 
-
-      - name: Export docker images as tar files
-        run: |
-          mkdir -p ${{ runner.temp }}/images/runtime
-          mkdir -p ${{ runner.temp }}/images/contrast
-          mkdir -p ${{ runner.temp }}/images/tests
-          docker save contrastsecuritydemo/netflicks:latest -o ${{ runner.temp }}/images/runtime/${{ env.PLATFORM_PAIR }}.tar
-          docker save contrastsecuritydemo/netflicks:latest-contrast -o ${{ runner.temp }}/images/contrast/${{ env.PLATFORM_PAIR }}.tar
-          docker save e2e-tests/netflicks:latest -o ${{ runner.temp }}/images/tests/${{ env.PLATFORM_PAIR }}.tar
-
-      - name: Upload image tar
-        uses: actions/upload-artifact@v4
-        with:
-          name: images-${{ env.PLATFORM_PAIR }}
-          path: ${{ runner.temp }}/images/*
-          if-no-files-found: error
-          retention-days: 1
-
-
-      # - name: Extract metadata
-      #   id: meta
-      #   uses: docker/metadata-action@v5
-      #   with:
-      #     images: contrastsecuritydemo/netflicks
-      #     tags: |
-      #       type=ref,event=branch
-      #       type=ref,event=pr
-      #       type=semver,pattern={{version}}
-      #       type=semver,pattern={{major}}.{{minor}}
-      #       type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Get currently installed Contrast agent version
-        id: versions
-        run: | 
-          docker compose up web-dev -d
-          docker compose cp web-dev:/opt/contrast/image-manifest.json image-manifest.json
-          CONTRAST_VERSION=$(cat image-manifest.json | jq -r '.version')
-          echo "contrast_version=${CONTRAST_VERSION}" >> $GITHUB_OUTPUT
-          docker compose down
-          echo "Contrast agent version: ${CONTRAST_VERSION}"
-
-      - name: Build all image variants with Docker Buildx Bake
-        id: bake
-        uses: docker/bake-action@v6
-        with:
-          files: |
-            docker-bake.hcl
-            cwd://${{ runner.temp }}/bake-meta.json
-          targets: |
-            multiarch
-          load: false
-          set: | 
-            *.platform=${{ matrix.platform }}
-            *.output=type=image,push-by-digest=true,name-canonical=true,push=false
-
-      - name: Export digest
-        run: |
-          echo "DIGEST METADATA catted out via file"
-          touch metadata.json
-          echo '${{ steps.bake.outputs.metadata }}' > metadata.json
-          cat metadata.json | jq -r '.runtime["containerimage.digest"]'
-          echo "---------------------"
-          cat metadata.json
-          echo "FULL METADATA"
-          echo '${{ fromJSON(steps.bake.outputs.metadata) }}'
-          echo "---------------------"
-          echo "RUNTIME METADATA"
-          echo '${{ fromJSON(steps.bake.outputs.metadata).runtime }}'
-
-          
-          mkdir -p ${{ runner.temp }}/digests/runtime
-          mkdir -p ${{ runner.temp }}/digests/contrast
-          mkdir -p ${{ runner.temp }}/digests/tests
-          runtime_digest="${{ fromJSON(steps.bake.outputs.metadata).runtime-multiarch['containerimage.digest'] }}"
-          contrast_digest="${{ fromJSON(steps.bake.outputs.metadata).runtime-with-contrast-multiarch['containerimage.digest'] }}"
-          tests_digest="${{ fromJSON(steps.bake.outputs.metadata).tests-multiarch['containerimage.digest'] }}"
-          echo "runtime_digest=${runtime_digest}"
-          echo "contrast_digest=${contrast_digest}"
-          echo "tests_digest=${tests_digest}"
-          touch "${{ runner.temp }}/digests/runtime/${runtime_digest#sha256:}"
-          touch "${{ runner.temp }}/digests/contrast/${contrast_digest#sha256:}"
-          touch "${{ runner.temp }}/digests/tests/${tests_digest#sha256:}"
-
-      - name: Upload digest
-        uses: actions/upload-artifact@v4
-        with:
-          name: digests-${{ env.PLATFORM_PAIR }}
-          path: ${{ runner.temp }}/digests/*
-          if-no-files-found: error
-          retention-days: 1
-
-
-
-  pre-merge:
-    name: Prepare to merge
-    runs-on: ubuntu-latest
-    needs: 
-      - build
-    steps:              
-      - name: Docker Metadata action
-        id: metadata    
+      - name: Extract metadata
+        id: docker-meta
         uses: docker/metadata-action@v5
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
         with:
-          images: contrastsecuritydemo/netflicks
+          images: |
+            ghcr.io/${{ github.repository }}
           flavor: |
-            latest=true
+            latest=false
+          annotations: |
+            org.opencontainers.image.description=Base image - build stage and buildcache for the netflicks application 
+            org.opencontainers.image.vendor=Contrast Security
           tags: |
-            type=semver,pattern={{version}}, priority=100
-            type=semver,pattern={{major}}.{{minor}}, priority=200
-          
-      - name: Version number 
+            type=ref,event=branch,suffix=-base
+            type=ref,event=branch,suffix=-base
+            type=ref,event=pr,suffix=-base
+            type=ref,event=pr,suffix=-base
+      
+      # To speed up the builds, we use caching of the docker image layers.
+      # Cache rules:
+      # - Use the existing base image cache from the main branch first for new PRs
+      # - After the first build in a PR, cache-to will save the cache to the registry under the PR name
+      # - Subsequent builds in the same PR will use the cache from the PR name
+      # - Otherwise, different PRs would cause cache pollution if they share the same base image cache
+      - name: Build the base docker image for this PR
+        id: bake-base-pr
+        uses: docker/bake-action@v6
+        with:
+          files: |
+            docker-bake.hcl
+            cwd://${{ steps.docker-meta.outputs.bake-file }}
+          targets: |
+            build
+          push: true
+          set: |
+            *.platform=linux/amd64
+            *.platform=linux/arm64
+            *.cache-from=type=registry,ref=ghcr.io/${{ github.repository }}:base-buildcache
+            *.cache-from=type=registry,ref=${{ steps.docker-meta.outputs.tags }}-buildcache
+            *.cache-to=type=registry,ref=${{ steps.docker-meta.outputs.tags }}-buildcache,mode=max
+
+      - name: Inspect the created images
+        id: inspect
         run: |
-          echo Getting the build metadata
-          echo ${{ needs.build.outputs.contrast_version }}
+          image_name='${{ fromJSON(steps.bake-base-pr.outputs.metadata).build['image.name'] }}'
+          image_digest='${{ fromJSON(steps.bake-base-pr.outputs.metadata).build['containerimage.digest'] }}'
 
-      - name: Download meta bake definition
-        uses: actions/download-artifact@v4
+          echo "Image Name: $image_name"
+          echo "Image Digest: $image_digest"
+          echo "Image Artifact: $image_name@$image_digest"
+
+          echo "image-name-base=$image_name" >> $GITHUB_OUTPUT
+          echo "image-digest-base=$image_digest" >> $GITHUB_OUTPUT
+          echo "image-artifact-base=$image_name@$image_digest" >> $GITHUB_OUTPUT
+
+  #TODO: Then share the base image with other jobs via cache
+
+  build:
+    name: Docker Build ${{ matrix.image.name }}
+    needs: 
+      - prepare
+      - build-base
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - name: runtime
+          - name: runtime-with-contrast
+          - name: tests
+    outputs:
+      image-name-runtime: ${{ steps.inspect.outputs['image-name-runtime'] }}
+      image-digest-runtime: ${{ steps.inspect.outputs['image-digest-runtime'] }}
+      image-artifact-runtime: ${{ steps.inspect.outputs['image-artifact-runtime'] }}
+      image-name-runtime-with-contrast: ${{ steps.inspect.outputs['image-name-runtime-with-contrast'] }}
+      image-digest-runtime-with-contrast: ${{ steps.inspect.outputs['image-digest-runtime-with-contrast'] }}
+      image-artifact-runtime-with-contrast: ${{ steps.inspect.outputs['image-artifact-runtime-with-contrast'] }}
+      image-name-tests: ${{ steps.inspect.outputs['image-name-tests'] }}
+      image-digest-tests: ${{ steps.inspect.outputs['image-digest-tests'] }}
+      image-artifact-tests: ${{ steps.inspect.outputs['image-artifact-tests'] }}
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+      
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          name: bake-meta
-          path: ${{ runner.temp }}
-
-      - name: Download digests
-        uses: actions/download-artifact@v4
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Set up Docker daemon for multi-platform builds
+        uses: docker/setup-docker-action@v4
         with:
-          path: ${{ runner.temp }}/digests
-          pattern: digests-*
-          merge-multiple: true
-
-      - name: Set up Docker Buildx
+          daemon-config: |
+            {
+              "debug": true,
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }
+      
+      - name: Docker Setup QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+      
+      - name: Docker Setup Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Create manifest list and push
-        working-directory: ${{ runner.temp }}/digests
-        run: |
-          ls -la 
-          ls -la runtime
-          ls -la contrast
-          ls -la tests
-        # docker buildx imagetools create $(jq -cr '.target."docker-metadata-action".tags | map(select(startswith("${{ env.REGISTRY_IMAGE }}")) | "-t " + .) | join(" ")' ${{ runner.temp }}/bake-meta.json) \
-        #   $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
-
-      - name: Download images
-        uses: actions/download-artifact@v4
+      - name: Extract metadata
+        id: docker-meta
+        uses: docker/metadata-action@v5
         with:
-          path: ${{ runner.temp }}/images
-          pattern: images-*
-          merge-multiple: true
-
-      - name: Load images
-        run: |
-          echo "Loading images"
-          for folder in ${{ runner.temp }}/images/*; do
-            for file in "$folder"/*.tar; do
-              echo "Loading $file"
-              docker load --input $file
-            done
-          done
+          images: |
+            ghcr.io/${{ github.repository }}
+          flavor: |
+            latest=false
+          annotations: |
+            org.opencontainers.image.description=A deliberately vulnerable .NET Core Application for Contrast Security demos
+            org.opencontainers.image.vendor=Contrast Security
+          tags: |
+            type=ref,event=branch,suffix=-${{ matrix.image.name }}
+            type=ref,event=branch,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
+            type=ref,event=pr,suffix=-${{ matrix.image.name }}
+            type=ref,event=pr,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
       
-      - name: Check images are loaded
+      - name: Pull base image
         run: |
-          echo "Checking loaded images"
-          docker image ls -a
+          echo "Pulling base image: ${{ needs.build-base.outputs.image-name-base }}"
+          docker pull '${{ needs.build-base.outputs.image-name-base }}'
 
-      - name: Inspect image
+      - name: Build all Docker images for this PR
+        id: bake-pr
+        uses: docker/bake-action@v6
+        with:
+          files: |
+            docker-bake.hcl
+            cwd://${{ steps.docker-meta.outputs.bake-file}}
+          targets: |
+            ${{ matrix.image.name }}
+          push: true
+          set: |
+            *.platform=linux/amd64
+            *.platform=linux/arm64
+            *.cache-from=type=registry,ref=ghcr.io/${{ github.repository }}:${{ matrix.image.name }}-buildcache
+            *.cache-from=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache
+            *.cache-to=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache,mode=max
+
+      - name: Inspect the created images
+        id: inspect
         run: |
-          docker buildx imagetools inspect contrastsecuritydemo/netflicks:latest
-          docker buildx imagetools inspect contrastsecuritydemo/netflicks:latest-contrast
-          docker buildx imagetools inspect e2e-tests/netflicks:latest
-        # docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:$(jq -r '.target."docker-metadata-action".args.DOCKER_META_VERSION' ${{ runner.temp }}/bake-meta.json)
-
-
-
-  # push:
-  #   name: Push Images to Docker Hub
-  #   if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-  #   runs-on: ubuntu-latest
-  #   needs: 
-  #     - test
-  #   steps:
-  #     -
-  #       name: Checkout branch
-  #       uses: actions/checkout@v4
-  #     -
-  #       name: Docker Setup QEMU
-  #       uses: docker/setup-qemu-action@v3
-  #       with:
-  #         platforms: all
-  #     -
-  #       name: Docker Setup Buildx
-  #       uses: docker/setup-buildx-action@v3
-  #       with: 
-  #         platforms: linux/amd64,linux/arm64
-  #     -
-  #       name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
-  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
-  #     -
-  #       name: Extract metadata for no-agent variant
-  #       id: meta-no-agent
-  #       uses: docker/metadata-action@v5
-  #       with:
-  #         images: contrastsecuritydemo/netflicks
-  #         flavor: |
-  #           latest=true
-  #           suffix=-no-agent
-  #         tags: |
-  #           type=ref,event=branch
-  #           type=semver,pattern={{version}}
-  #           type=semver,pattern={{major}}.{{minor}}
-  #           type=raw,value=latest,enable={{is_default_branch}}
-  #     -
-  #       name: Extract metadata for agent variant
-  #       id: meta-agent
-  #       uses: docker/metadata-action@v5
-  #       with:
-  #         images: contrastsecuritydemo/netflicks
-  #         flavor: |
-  #           latest=true
-  #           suffix=-agent
-  #         tags: |
-  #           type=ref,event=branch
-  #           type=semver,pattern={{version}}
-  #           type=semver,pattern={{major}}.{{minor}}
-  #           type=raw,value=latest,enable={{is_default_branch}}
-  #     -
-  #       name: Build and push no-agent variant
-  #       uses: docker/build-push-action@v5
-  #       with: 
-  #         context: .
-  #         platforms: linux/amd64,linux/arm64
-  #         push: true
-  #         cache-from: type=gha
-  #         target: runtime
-  #         tags: ${{ steps.meta-no-agent.outputs.tags }}
-  #         labels: ${{ steps.meta-no-agent.outputs.labels }}
-  #     -
-  #       name: Build and push agent variant
-  #       uses: docker/build-push-action@v5
-  #       with: 
-  #         context: .
-  #         platforms: linux/amd64,linux/arm64
-  #         push: true
-  #         cache-from: type=gha
-  #         target: runtime-with-contrast
-  #         tags: ${{ steps.meta-agent.outputs.tags }}
-  #         labels: ${{ steps.meta-agent.outputs.labels }}
-
           
+          matrix_image_name='${{ matrix.image.name }}'
+          echo "Matrix Image Name: $matrix_image_name"
+          image_name='${{ fromJSON(steps.bake-pr.outputs.metadata)[matrix.image.name]['image.name'][0] }}'
+          image_digest='${{ fromJSON(steps.bake-pr.outputs.metadata)[matrix.image.name]['containerimage.digest'] }}'
+
+          echo "Image Name: $image_name"
+          echo "Image Digest: $image_digest"
+          echo "Image Artifact: $image_name@$image_digest"
+
+          echo "image-name-${{ matrix.image.name }}=$image_name" >> $GITHUB_OUTPUT
+          echo "image-digest-${{ matrix.image.name }}=$image_digest" >> $GITHUB_OUTPUT
+          echo "image-artifact-${{ matrix.image.name }}=$image_name@$image_digest" >> $GITHUB_OUTPUT
+
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v3
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
 
-  merge:
-    name: Merge if PR is merged and tests pass
-    if: github.event.pull_request.merged
-    runs-on: ubuntu-latest
+
+  test:
     needs: 
-      - pre-merge
+      - build
+    uses: ./.github/workflows/e2e-tests.yml
+    with:
+      staging_image_runtime: ${{ needs.build.outputs.image-name-runtime }}
+      staging_image_runtime_with_contrast: ${{ needs.build.outputs.image-name-runtime-with-contrast }}
+      staging_image_tests: ${{ needs.build.outputs.image-name-tests }}
 
+  # test-contrast:
+  #   needs: 
+  #     - build
+  #   uses: ./.github/workflows/e2e-tests.yml
+  #   with:
+  #     staging_image_runtime: ${{ needs.build.outputs.image-name-runtime-with-contrast }}
+  #     staging_image_tests: ${{ needs.build.outputs.image-name-tests }}
+  #   secrets:
+  #       contrast_api_token: ${{ secrets.CONTRAST_API_TOKEN }}
+  
+
+  #
+  # Release Internal
+  #
+  release-internal:
+    needs:
+      - prepare
+      - build
+      - test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - name: runtime
+          - name: runtime-with-contrast
+          - name: tests
     steps:
-      - run: |
-          echo The PR was merged
+
+      - name: Extract metadata
+        id: release-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          flavor: |
+            latest=true
+          annotations: |
+            org.opencontainers.image.description=A deliberately vulnerable .NET Core Application for Contrast Security demos
+            org.opencontainers.image.vendor=Contrast Security
+          tags: |
+            type=semver,pattern={{version}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
+            type=semver,pattern={{major}}.{{minor}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
+            type=semver,pattern={{major}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
+            type=raw,value=${{ matrix.image.name == 'runtime-with-contrast' && 'latest-contrast' || 'latest' }},enable=${{ matrix.image.name != 'tests' }}
+            type=raw,value=tests,enable=${{ matrix.image.name == 'tests' }}
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release image (internal)
+        uses: akhilerm/tag-push-action@v2.1.0
+        with:
+          src: ${{ needs.build.outputs[format('image-name-{0}', matrix.image.name)] }}
+          dst: |
+            ${{ steps.release-meta.outputs.tags }}
