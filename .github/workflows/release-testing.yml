@@ -94,7 +94,8 @@ jobs:
           # returns a list with each string on a new line - breaks shit
           # image_name='${{ steps.docker-meta.outputs.tags }}'
 
-          image_name='${{ fromJSON(steps.docker-meta.outputs.tags) }}'
+          image_name='$(echo '${{ steps.docker-meta.outputs.tags }}' | head -n1)'
+          
           echo "$image_name"
 
 
