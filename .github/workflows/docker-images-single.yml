@@ -263,6 +263,7 @@ jobs:
     uses: ./.github/workflows/e2e-tests.yml
     with:
       staging_image_runtime: ${{ needs.build.outputs.image-name-runtime }}
+      staging_image_runtime_with_contrast: ${{ needs.build.outputs.image-name-runtime-with-contrast }}
       staging_image_tests: ${{ needs.build.outputs.image-name-tests }}
 
   # test-contrast:
