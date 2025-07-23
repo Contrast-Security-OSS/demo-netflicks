@@ -149,6 +149,6 @@ jobs:
       - name: Release image (internal)
         uses: akhilerm/tag-push-action@v2.2.0
         with:
-          src: ${{ needs.build.outputs[format('image-name-{0}', matrix.image.name)] }}
+          src: "${{ needs.build.outputs[format('image-name-{0}', matrix.image.name)] }}"
           dst: |
             ${{ steps.release-meta.outputs.tags }}
