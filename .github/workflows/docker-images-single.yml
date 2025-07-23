@@ -319,4 +319,4 @@ jobs:
         with:
           src: ${{ needs.build.outputs[format('image-name-{0}', matrix.image.name)] }}
           dst: |
-            ${{ steps.release-meta.outputs.tags }}
+            ${{ steps.release-meta.outputs.tags[0] }}
