@@ -140,199 +140,199 @@ jobs:
 
   #TODO: Then share the base image with other jobs via cache
 
-  build:
-    name: Docker Build ${{ matrix.image.name }}
-    needs: 
-      - prepare
-      - build-base
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-    strategy:
-      fail-fast: false
-      matrix:
-        image:
-          - name: runtime
-          - name: runtime-with-contrast
-          - name: tests
-    outputs:
-      image-name-runtime: ${{ steps.inspect.outputs['image-name-runtime'] }}
-      image-digest-runtime: ${{ steps.inspect.outputs['image-digest-runtime'] }}
-      image-artifact-runtime: ${{ steps.inspect.outputs['image-artifact-runtime'] }}
-      image-name-runtime-with-contrast: ${{ steps.inspect.outputs['image-name-runtime-with-contrast'] }}
-      image-digest-runtime-with-contrast: ${{ steps.inspect.outputs['image-digest-runtime-with-contrast'] }}
-      image-artifact-runtime-with-contrast: ${{ steps.inspect.outputs['image-artifact-runtime-with-contrast'] }}
-      image-name-tests: ${{ steps.inspect.outputs['image-name-tests'] }}
-      image-digest-tests: ${{ steps.inspect.outputs['image-digest-tests'] }}
-      image-artifact-tests: ${{ steps.inspect.outputs['image-artifact-tests'] }}
-    steps:
-      - name: Checkout branch
-        uses: actions/checkout@v4
+  # build:
+  #   name: Docker Build ${{ matrix.image.name }}
+  #   needs: 
+  #     - prepare
+  #     - build-base
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     packages: write
+  #     attestations: write
+  #     id-token: write
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       image:
+  #         - name: runtime
+  #         - name: runtime-with-contrast
+  #         - name: tests
+  #   outputs:
+  #     image-name-runtime: ${{ steps.inspect.outputs['image-name-runtime'] }}
+  #     image-digest-runtime: ${{ steps.inspect.outputs['image-digest-runtime'] }}
+  #     image-artifact-runtime: ${{ steps.inspect.outputs['image-artifact-runtime'] }}
+  #     image-name-runtime-with-contrast: ${{ steps.inspect.outputs['image-name-runtime-with-contrast'] }}
+  #     image-digest-runtime-with-contrast: ${{ steps.inspect.outputs['image-digest-runtime-with-contrast'] }}
+  #     image-artifact-runtime-with-contrast: ${{ steps.inspect.outputs['image-artifact-runtime-with-contrast'] }}
+  #     image-name-tests: ${{ steps.inspect.outputs['image-name-tests'] }}
+  #     image-digest-tests: ${{ steps.inspect.outputs['image-digest-tests'] }}
+  #     image-artifact-tests: ${{ steps.inspect.outputs['image-artifact-tests'] }}
+  #   steps:
+  #     - name: Checkout branch
+  #       uses: actions/checkout@v4
       
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Login to GHCR
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Set up Docker daemon for multi-platform builds
-        uses: docker/setup-docker-action@v4
-        with:
-          daemon-config: |
-            {
-              "debug": true,
-              "features": {
-                "containerd-snapshotter": true
-              }
-            }
+  #     - name: Set up Docker daemon for multi-platform builds
+  #       uses: docker/setup-docker-action@v4
+  #       with:
+  #         daemon-config: |
+  #           {
+  #             "debug": true,
+  #             "features": {
+  #               "containerd-snapshotter": true
+  #             }
+  #           }
       
-      - name: Docker Setup QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
+  #     - name: Docker Setup QEMU
+  #       uses: docker/setup-qemu-action@v3
+  #       with:
+  #         platforms: arm64
       
-      - name: Docker Setup Buildx
-        uses: docker/setup-buildx-action@v3
+  #     - name: Docker Setup Buildx
+  #       uses: docker/setup-buildx-action@v3
 
-      - name: Extract metadata
-        id: docker-meta
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            ghcr.io/${{ github.repository }}
-          flavor: |
-            latest=false
-          annotations: |
-            org.opencontainers.image.description=A deliberately vulnerable .NET Core Application for Contrast Security demos
-            org.opencontainers.image.vendor=Contrast Security
-          tags: |
-            type=ref,event=branch,suffix=-${{ matrix.image.name }}
-            type=ref,event=branch,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
-            type=ref,event=pr,suffix=-${{ matrix.image.name }}
-            type=ref,event=pr,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
+  #     - name: Extract metadata
+  #       id: docker-meta
+  #       uses: docker/metadata-action@v5
+  #       with:
+  #         images: |
+  #           ghcr.io/${{ github.repository }}
+  #         flavor: |
+  #           latest=false
+  #         annotations: |
+  #           org.opencontainers.image.description=A deliberately vulnerable .NET Core Application for Contrast Security demos
+  #           org.opencontainers.image.vendor=Contrast Security
+  #         tags: |
+  #           type=ref,event=branch,suffix=-${{ matrix.image.name }}
+  #           type=ref,event=branch,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
+  #           type=ref,event=pr,suffix=-${{ matrix.image.name }}
+  #           type=ref,event=pr,suffix=-${{ matrix.image.name }}${{ matrix.image.name == 'runtime-with-contrast' && needs.prepare.outputs.contrast_version || null }}
       
-      - name: Pull base image
-        run: |
-          echo "Pulling base image: ${{ needs.build-base.outputs.image-name-base }}"
-          docker pull '${{ needs.build-base.outputs.image-name-base }}'
+  #     - name: Pull base image
+  #       run: |
+  #         echo "Pulling base image: ${{ needs.build-base.outputs.image-name-base }}"
+  #         docker pull '${{ needs.build-base.outputs.image-name-base }}'
 
-      - name: Build all Docker images for this PR
-        id: bake-pr
-        uses: docker/bake-action@v6
-        with:
-          files: |
-            docker-bake.hcl
-            cwd://${{ steps.docker-meta.outputs.bake-file}}
-          targets: |
-            ${{ matrix.image.name }}
-          push: true
-          set: |
-            *.platform=linux/amd64
-            *.platform=linux/arm64
-            *.cache-from=type=registry,ref=ghcr.io/${{ github.repository }}:${{ matrix.image.name }}-buildcache
-            *.cache-from=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache
-            *.cache-to=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache,mode=max
+  #     - name: Build all Docker images for this PR
+  #       id: bake-pr
+  #       uses: docker/bake-action@v6
+  #       with:
+  #         files: |
+  #           docker-bake.hcl
+  #           cwd://${{ steps.docker-meta.outputs.bake-file}}
+  #         targets: |
+  #           ${{ matrix.image.name }}
+  #         push: true
+  #         set: |
+  #           *.platform=linux/amd64
+  #           *.platform=linux/arm64
+  #           *.cache-from=type=registry,ref=ghcr.io/${{ github.repository }}:${{ matrix.image.name }}-buildcache
+  #           *.cache-from=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache
+  #           *.cache-to=type=registry,ref=${{ needs.build-base.outputs.image-name-base }}-buildcache,mode=max
 
-      - name: Inspect the created images
-        id: inspect
-        run: |
+  #     - name: Inspect the created images
+  #       id: inspect
+  #       run: |
           
-          matrix_image_name='${{ matrix.image.name }}'
-          echo "Matrix Image Name: $matrix_image_name"
-          image_name='${{ fromJSON(steps.bake-pr.outputs.metadata)[matrix.image.name]['image.name'][0] }}'
-          image_digest='${{ fromJSON(steps.bake-pr.outputs.metadata)[matrix.image.name]['containerimage.digest'] }}'
+  #         matrix_image_name='${{ matrix.image.name }}'
+  #         echo "Matrix Image Name: $matrix_image_name"
+  #         image_name='${{ fromJSON(steps.bake-pr.outputs.metadata)[matrix.image.name]['image.name'][0] }}'
+  #         image_digest='${{ fromJSON(steps.bake-pr.outputs.metadata)[matrix.image.name]['containerimage.digest'] }}'
 
-          echo "Image Name: $image_name"
-          echo "Image Digest: $image_digest"
-          echo "Image Artifact: $image_name@$image_digest"
+  #         echo "Image Name: $image_name"
+  #         echo "Image Digest: $image_digest"
+  #         echo "Image Artifact: $image_name@$image_digest"
 
-          echo "image-name-${{ matrix.image.name }}=$image_name" >> $GITHUB_OUTPUT
-          echo "image-digest-${{ matrix.image.name }}=$image_digest" >> $GITHUB_OUTPUT
-          echo "image-artifact-${{ matrix.image.name }}=$image_name@$image_digest" >> $GITHUB_OUTPUT
+  #         echo "image-name-${{ matrix.image.name }}=$image_name" >> $GITHUB_OUTPUT
+  #         echo "image-digest-${{ matrix.image.name }}=$image_digest" >> $GITHUB_OUTPUT
+  #         echo "image-artifact-${{ matrix.image.name }}=$image_name@$image_digest" >> $GITHUB_OUTPUT
 
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v3
-      #   with:
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+  #     # - name: Login to Docker Hub
+  #     #   uses: docker/login-action@v3
+  #     #   with:
+  #     #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #     #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
 
 
-  test:
-    needs: 
-      - build
-    uses: ./.github/workflows/e2e-tests.yml
-    with:
-      staging_image_runtime: ${{ needs.build.outputs.image-name-runtime }}
-      staging_image_runtime_with_contrast: ${{ needs.build.outputs.image-name-runtime-with-contrast }}
-      staging_image_tests: ${{ needs.build.outputs.image-name-tests }}
-
-  # test-contrast:
+  # test:
   #   needs: 
   #     - build
   #   uses: ./.github/workflows/e2e-tests.yml
   #   with:
-  #     staging_image_runtime: ${{ needs.build.outputs.image-name-runtime-with-contrast }}
+  #     staging_image_runtime: ${{ needs.build.outputs.image-name-runtime }}
+  #     staging_image_runtime_with_contrast: ${{ needs.build.outputs.image-name-runtime-with-contrast }}
   #     staging_image_tests: ${{ needs.build.outputs.image-name-tests }}
-  #   secrets:
-  #       contrast_api_token: ${{ secrets.CONTRAST_API_TOKEN }}
+
+  # # test-contrast:
+  # #   needs: 
+  # #     - build
+  # #   uses: ./.github/workflows/e2e-tests.yml
+  # #   with:
+  # #     staging_image_runtime: ${{ needs.build.outputs.image-name-runtime-with-contrast }}
+  # #     staging_image_tests: ${{ needs.build.outputs.image-name-tests }}
+  # #   secrets:
+  # #       contrast_api_token: ${{ secrets.CONTRAST_API_TOKEN }}
   
 
-  #
-  # Release Internal
-  #
-  release-internal:
-    needs:
-      - prepare
-      - build
-      - test
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-    strategy:
-      fail-fast: false
-      matrix:
-        image:
-          - name: runtime
-          - name: runtime-with-contrast
-          - name: tests
-    steps:
+  # #
+  # # Release Internal
+  # #
+  # release-internal:
+  #   needs:
+  #     - prepare
+  #     - build
+  #     - test
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     packages: write
+  #     attestations: write
+  #     id-token: write
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       image:
+  #         - name: runtime
+  #         - name: runtime-with-contrast
+  #         - name: tests
+  #   steps:
 
-      - name: Extract metadata
-        id: release-meta
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            ghcr.io/${{ github.repository }}
-          flavor: |
-            latest=true
-          annotations: |
-            org.opencontainers.image.description=A deliberately vulnerable .NET Core Application for Contrast Security demos
-            org.opencontainers.image.vendor=Contrast Security
-          tags: |
-            type=semver,pattern={{version}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
-            type=semver,pattern={{major}}.{{minor}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
-            type=semver,pattern={{major}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
-            type=raw,value=${{ matrix.image.name == 'runtime-with-contrast' && 'latest-contrast' || 'latest' }},enable=${{ matrix.image.name != 'tests' }}
-            type=raw,value=tests,enable=${{ matrix.image.name == 'tests' }}
+  #     - name: Extract metadata
+  #       id: release-meta
+  #       uses: docker/metadata-action@v5
+  #       with:
+  #         images: |
+  #           ghcr.io/${{ github.repository }}
+  #         flavor: |
+  #           latest=true
+  #         annotations: |
+  #           org.opencontainers.image.description=A deliberately vulnerable .NET Core Application for Contrast Security demos
+  #           org.opencontainers.image.vendor=Contrast Security
+  #         tags: |
+  #           type=semver,pattern={{version}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
+  #           type=semver,pattern={{major}}.{{minor}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
+  #           type=semver,pattern={{major}},prefix=contrast,value=${{ needs.prepare.outputs.contrast_version }},enable=${{ matrix.image.name == 'runtime-with-contrast' }}
+  #           type=raw,value=${{ matrix.image.name == 'runtime-with-contrast' && 'latest-contrast' || 'latest' }},enable=${{ matrix.image.name != 'tests' }}
+  #           type=raw,value=tests,enable=${{ matrix.image.name == 'tests' }}
 
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Login to GHCR
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Release image (internal)
-        uses: akhilerm/tag-push-action@v2.1.0
-        with:
-          src: ${{ needs.build.outputs[format('image-name-{0}', matrix.image.name)] }}
-          dst: |
-            ${{ steps.release-meta.outputs.tags }}
+  #     - name: Release image (internal)
+  #       uses: akhilerm/tag-push-action@v2.1.0
+  #       with:
+  #         src: ${{ needs.build.outputs[format('image-name-{0}', matrix.image.name)] }}
+  #         dst: |
+  #           ${{ steps.release-meta.outputs.tags }}
