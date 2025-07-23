@@ -238,7 +238,7 @@ jobs:
           
           matrix_image_name='${{ matrix.image.name }}'
           echo "Matrix Image Name: $matrix_image_name"
-          image_name='${{ fromJSON(steps.bake-pr.outputs.metadata)[matrix.image.name]['image.name'] }}'
+          image_name='${{ fromJSON(steps.bake-pr.outputs.metadata)[matrix.image.name]['image.name'][0] }}'
           image_digest='${{ fromJSON(steps.bake-pr.outputs.metadata)[matrix.image.name]['containerimage.digest'] }}'
 
           echo "Image Name: $image_name"
@@ -263,8 +263,18 @@ jobs:
     uses: ./.github/workflows/e2e-tests.yml
     with:
       staging_image_runtime: ${{ needs.build.outputs.image-name-runtime }}
-      staging_image_runtime_with_contrast: ${{ needs.build.outputs.image-name-runtime-with-contrast }}
       staging_image_tests: ${{ needs.build.outputs.image-name-tests }}
+
+  # test-contrast:
+  #   needs: 
+  #     - build
+  #   uses: ./.github/workflows/e2e-tests.yml
+  #   with:
+  #     staging_image_runtime: ${{ needs.build.outputs.image-name-runtime-with-contrast }}
+  #     staging_image_tests: ${{ needs.build.outputs.image-name-tests }}
+  #   secrets:
+  #       contrast_api_token: ${{ secrets.CONTRAST_API_TOKEN }}
+  
 
   #
   # Release Internal
@@ -319,4 +329,4 @@ jobs:
         with:
           src: ${{ needs.build.outputs[format('image-name-{0}', matrix.image.name)] }}
           dst: |
-            ${{ steps.release-meta.outputs.tags[0] }}
+            ${{ steps.release-meta.outputs.tags }}
