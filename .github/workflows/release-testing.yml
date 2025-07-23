@@ -92,7 +92,7 @@ jobs:
           # image_name='${{ steps.docker-meta.outputs.tags[0] }}'
           
           # Use the json output instead of the tags output
-          # image_name='${{ steps.docker-meta.outputs.json.tags }}'
+          image_name='${{ fromJSON(steps.docker-meta.outputs.json.tags)[0] }}'
           
           echo "$image_name"
 
