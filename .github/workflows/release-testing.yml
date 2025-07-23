@@ -127,6 +127,8 @@ jobs:
         with:
           images: |
             ghcr.io/${{ github.repository }}
+          flavor: |
+            latest=false
           annotations: |
             org.opencontainers.image.description=A deliberately vulnerable .NET Core Application for Contrast Security demos
             org.opencontainers.image.vendor=Contrast Security
