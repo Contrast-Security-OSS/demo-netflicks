@@ -147,7 +147,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release image (internal)
-        uses: akhilerm/tag-push-action@v2.1.0
+        uses: akhilerm/tag-push-action@v2.2.0
         with:
           src: ${{ needs.build.outputs[format('image-name-{0}', matrix.image.name)] }}
           dst: |
