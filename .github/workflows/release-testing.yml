@@ -84,19 +84,13 @@ jobs:
       - name: Inspect the created images
         id: inspect
         run: |
-          
           matrix_image_name='${{ matrix.image.name }}'
           echo "Matrix Image Name: $matrix_image_name"
-          
-          # resolves to empty string
-          # image_name='${{ steps.docker-meta.outputs.tags[0] }}'
           
           # Use the json output instead of the tags output
           image_name='${{ fromJSON(steps.docker-meta.outputs.json).tags }}'
           
           echo "$image_name"
-
-
           image_digest='abcdefghijk' # Placeholder for actual digest
 
           echo "Image Name: $image_name"
