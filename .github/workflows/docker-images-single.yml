@@ -307,6 +307,13 @@ jobs:
             type=raw,value=${{ matrix.image.name == 'runtime-with-contrast' && 'latest-contrast' || 'latest' }},enable=${{ matrix.image.name != 'tests' }}
             type=raw,value=tests,enable=${{ matrix.image.name == 'tests' }}
 
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Release image (internal)
         uses: akhilerm/tag-push-action@v2.1.0
         with:
