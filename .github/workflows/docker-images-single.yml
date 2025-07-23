@@ -139,6 +139,11 @@ jobs:
           echo "image-digest-base=$image_digest" >> $GITHUB_OUTPUT
           echo "image-artifact-base=$image_name@$image_digest" >> $GITHUB_OUTPUT
 
+      - name: Adding markdown
+        run: |
+          echo '### Internal Docker Images ready for testing! 🚀' >> $GITHUB_STEP_SUMMARY
+          echo ' - $image_name' >> $GITHUB_STEP_SUMMARY
+
       # - name: Build all Docker images for this PR
       #   id: bake-pr
       #   uses: docker/bake-action@v6
