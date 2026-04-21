@@ -41,6 +41,7 @@
     <Folder Include="wwwroot\lib\tinysort\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     <Content Update="Views\Movie\ViewAllForUser.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
