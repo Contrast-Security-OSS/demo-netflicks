@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright:v1.32.1-jammy
+FROM mcr.microsoft.com/playwright:v1.32.1-jammy@sha256:d5f1c6efb7c440aad9d6e751ebb9251df4ecd464bf33c64fd71a2c6b7accbda8
 # copy project (including tests)
 # COPY . /tests
 
