@@ -23,6 +23,7 @@ namespace DotNetFlicks.Managers.Config
             services.AddTransient<IEmailManager, EmailManager>();
             services.AddTransient<IGenreManager, GenreManager>();
             services.AddTransient<IMovieManager, MovieManager>();
+            services.AddTransient<IMusicManager, MusicManager>();
             services.AddTransient<IPersonManager, PersonManager>();
 
             return services;

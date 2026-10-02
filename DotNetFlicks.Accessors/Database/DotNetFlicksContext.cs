@@ -8,6 +8,7 @@ namespace DotNetFlicks.Accessors.Database
 {
     public class DotNetFlicksContext : IdentityDbContext<ApplicationUser>
     {
+        public DbSet<Album> Albums { get; set; }
         public DbSet<CastMember> CastMembers { get; set; }
         public DbSet<CrewMember> CrewMembers { get; set; }
         public DbSet<Department> Departments { get; set; }
@@ -15,6 +16,8 @@ namespace DotNetFlicks.Accessors.Database
         public DbSet<Movie> Movies { get; set; }
         public DbSet<MovieGenre> MovieGenres { get; set; }
         public DbSet<Person> People { get; set; }
+        public DbSet<Track> Tracks { get; set; }
+        public DbSet<UserAlbum> UserAlbums { get; set; }
         public DbSet<UserMovie> UserMovies { get; set; }
         public DbSet<UserSearch> UserSearches { get; set; }
 
@@ -38,7 +41,13 @@ namespace DotNetFlicks.Accessors.Database
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
 
+            builder.Entity<UserAlbum>()
+                .HasIndex(x => new { x.UserId, x.AlbumId })
+                .IsUnique();
+
             //Seed data
+            builder.SeedAlbums();
+            builder.SeedTracks();
             builder.SeedGenres();
             builder.SeedDepartments();
             builder.SeedPeople();

@@ -1,0 +1,62 @@
+﻿@model DotNetFlicks.ViewModels.Music.AlbumViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="jumbotron">
+    <div class="row align-items-center">
+        <div class="col-md-4 col-lg-3 text-center mb-4 mb-md-0">
+            <img src="@Model.CoverImageUrl" alt="@Model.Title cover" class="img-fluid rounded shadow">
+        </div>
+        <div class="col">
+            <span class="badge badge-secondary mb-2">@Model.Genre</span>
+            <h1 class="display-4">@Model.Title</h1>
+            <h4 class="font-weight-normal text-muted">@Model.Artist</h4>
+            <p class="mt-4">@Model.Description</p>
+            <p><strong>Released:</strong> @Model.ReleaseDate.ToLongDateString()</p>
+
+            @if (Model.IsInLibrary)
+            {
+                <form asp-action="RemoveFromLibrary" asp-route-id="@Model.Id" method="post">
+                    <button class="btn btn-outline-danger" type="submit">
+                        <i class="fas fa-minus-circle mr-1"></i> Remove from My Music
+                    </button>
+                </form>
+            }
+            else
+            {
+                <form asp-action="AddToLibrary" asp-route-id="@Model.Id" method="post">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-plus-circle mr-1"></i> Add to My Music
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="mb-5">
+    <h2>Tracks <small class="text-muted">(@Model.Tracks.Count)</small></h2>
+    <div class="list-group mt-3">
+        @foreach (var track in Model.Tracks)
+        {
+            <div class="list-group-item">
+                <div class="row align-items-center">
+                    <div class="col-auto text-muted" style="width: 48px;">@track.TrackNumber</div>
+                    <div class="col">
+                        <strong>@track.Title</strong>
+                        <div class="small text-muted">@track.Duration.ToString(@"m\:ss")</div>
+                    </div>
+                    <div class="col-md-6 col-lg-5 mt-2 mt-md-0">
+                        <audio controls preload="none" class="w-100" aria-label="Play @track.Title">
+                            <source src="@track.PreviewUrl" type="audio/mpeg">
+                            Your browser does not support audio playback.
+                        </audio>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <p class="small text-muted mt-3">Preview audio is provided for demonstration purposes.</p>
+</div>

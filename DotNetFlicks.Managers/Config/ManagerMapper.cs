@@ -3,6 +3,7 @@ using DotNetFlicks.Accessors.Models.DTO;
 using DotNetFlicks.ViewModels.Department;
 using DotNetFlicks.ViewModels.Genre;
 using DotNetFlicks.ViewModels.Movie;
+using DotNetFlicks.ViewModels.Music;
 using DotNetFlicks.ViewModels.Person;
 using DotNetFlicks.ViewModels.Shared;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace DotNetFlicks.Managers.Config
     {
         public ManagerMapper()
         {
+            CreateMap<AlbumDTO, AlbumViewModel>();
             CreateMap<CastMemberDTO, CastMemberViewModel>().ReverseMap();
 
             CreateMap<CastMemberDTO, MovieRoleViewModel>()
@@ -63,6 +65,8 @@ namespace DotNetFlicks.Managers.Config
 
             CreateMap<PersonViewModel, PersonDTO>()
                 .ForMember(dest => dest.Biography, opt => opt.MapFrom(src => src.Biography.Replace(System.Environment.NewLine, "\\n")));
+
+            CreateMap<TrackDTO, TrackViewModel>();
         }
 
         public override string ProfileName

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-labelledby="title">
+  <title id="title">Album cover placeholder</title>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6f42c1"/>
+      <stop offset="1" stop-color="#007bff"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#background)"/>
+  <circle cx="300" cy="300" r="176" fill="#17132b" opacity=".9"/>
+  <circle cx="300" cy="300" r="55" fill="#f8f9fa"/>
+  <circle cx="300" cy="300" r="18" fill="#6f42c1"/>
+  <path d="M390 132v238a72 72 0 1 1-30-58V175l-112 27v202a72 72 0 1 1-30-58V178z" fill="#f8f9fa" opacity=".95"/>
+</svg>

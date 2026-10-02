@@ -19,6 +19,7 @@ namespace DotNetFlicks.Accessors.Config
             // test
             services.AddTransient<DbContext, DotNetFlicksContext>();
 
+            services.AddTransient<IAlbumAccessor, AlbumAccessor>();
             services.AddTransient<ICastMemberAccessor, CastMemberAccessor>();
             services.AddTransient<ICrewMemberAccessor, CrewMemberAccessor>();
             services.AddTransient<IGenreAccessor, GenreAccessor>();
@@ -26,6 +27,7 @@ namespace DotNetFlicks.Accessors.Config
             services.AddTransient<IMovieAccessor, MovieAccessor>();
             services.AddTransient<IMovieGenreAccessor, MovieGenreAccessor>();
             services.AddTransient<IPersonAccessor, PersonAccessor>();
+            services.AddTransient<IUserAlbumAccessor, UserAlbumAccessor>();
             services.AddTransient<IUserMovieAccessor, UserMovieAccessor>();
 
             return services;

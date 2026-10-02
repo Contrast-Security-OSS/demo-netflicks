@@ -8,6 +8,7 @@ namespace DotNetFlicks.Accessors.Config
     {
         public AccessorMapper()
         {
+            CreateMap<Album, AlbumDTO>().ReverseMap();
             CreateMap<CastMember, CastMemberDTO>().ReverseMap();
             CreateMap<CrewMember, CrewMemberDTO>().ReverseMap();
             CreateMap<Department, DepartmentDTO>().ReverseMap();
@@ -15,6 +16,7 @@ namespace DotNetFlicks.Accessors.Config
             CreateMap<Movie, MovieDTO>().ReverseMap();
             CreateMap<MovieGenre, MovieGenreDTO>().ReverseMap();
             CreateMap<Person, PersonDTO>().ReverseMap();
+            CreateMap<Track, TrackDTO>().ReverseMap();
             CreateMap<UserMovie, UserMovieDTO>().ReverseMap();
         }
 
